@@ -11,7 +11,6 @@ logging.basicConfig(
 )
 
 # Configuration
-MONITOR_DIR = "./test"  # Path to your monitored folder
 BASELINE_FILE = "baseline.json"  # File to store baseline data
 POLL_INTERVAL = 1  # Time interval in seconds
 
@@ -47,7 +46,7 @@ def save_baseline(baseline):
     with open(BASELINE_FILE, "w") as f:
         json.dump(baseline, f, indent=4)
 
-def monitor_changes():
+def monitor_changes(directory):
     """Monitor files and folders for integrity changes."""
     baseline = load_baseline()  # Load the baseline at the start
 
@@ -56,7 +55,7 @@ def monitor_changes():
 
         # Track files and folders in the monitored directory
         current_entries = {}
-        for root, dirs, files in os.walk(MONITOR_DIR):
+        for root, dirs, files in os.walk(directory):
             # Track folders
             for folder in dirs:
                 folder_path = os.path.join(root, folder)
@@ -104,14 +103,43 @@ def monitor_changes():
 
         time.sleep(POLL_INTERVAL)  # Monitor at regular intervals
 
-if __name__ == "__main__":
-    # Ensure the monitored folder exists
-    if not os.path.exists(MONITOR_DIR):
-        print(f"Creating monitored directory: {MONITOR_DIR}")
-        os.makedirs(MONITOR_DIR)
+def view_baseline():
+    """View the current baseline data."""
+    if os.path.exists(BASELINE_FILE):
+        with open(BASELINE_FILE, "r") as f:
+            print(json.dumps(json.load(f), indent=4))
+    else:
+        print("Baseline file not found.")
 
-    print("Starting File Integrity Monitor...")
-    try:
-        monitor_changes()
-    except KeyboardInterrupt:
-        print("\nFile Integrity Monitor stopped.")
+def reset_baseline(directory):
+    """Reset the baseline file."""
+    print("Resetting baseline...")
+    if os.path.exists(BASELINE_FILE):
+        os.remove(BASELINE_FILE)
+    # Generate a fresh baseline
+    baseline = {}
+    for root, dirs, files in os.walk(directory):
+        for folder in dirs:
+            folder_path = os.path.join(root, folder)
+            baseline[folder_path] = {
+                "type": "folder",
+                "last_modified": os.path.getmtime(folder_path),
+            }
+        for file in files:
+            file_path = os.path.join(root, file)
+            baseline[file_path] = {
+                "type": "file",
+                "hash": calculate_hash(file_path),
+                "size": os.path.getsize(file_path),
+                "last_modified": os.path.getmtime(file_path),
+            }
+    save_baseline(baseline)
+    print("Baseline reset complete.")
+
+def view_logs():
+    """View the logs from the logging file."""
+    if os.path.exists("FIM_Logging.log"):
+        with open("FIM_Logging.log", "r") as log_file:
+            print(log_file.read())
+    else:
+        print("Log file not found.")
