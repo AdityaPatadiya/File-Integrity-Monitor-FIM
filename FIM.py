@@ -3,6 +3,12 @@ import json
 import time
 import hashlib
 import logging
+from encryption_for_baseline_file.baseline_security import (
+    save_baseline_encrypted, load_baseline_encrypted, generate_key
+)
+from encryption_for_baseline_file.digital_signature import (
+    save_baseline_with_signature, load_baseline_with_signature, generate_key_pair
+)
 
 logging.basicConfig(
     filename="FIM_Logging.log",
@@ -48,7 +54,11 @@ def save_baseline(baseline):
 
 def monitor_changes(directory):
     """Monitor files and folders for integrity changes."""
-    baseline = load_baseline()  # Load the baseline at the start
+    try:
+        baseline = load_baseline_encrypted()
+    except Exception as e:
+        logging.error(f"Failed to load baseline: {e}")
+        baseline = {}
 
     while True:
         updated_baseline = baseline.copy()  # Start with a copy of the current baseline
@@ -99,7 +109,11 @@ def monitor_changes(directory):
 
         # Update the baseline
         baseline = updated_baseline
-        save_baseline(baseline)
+        try:
+            save_baseline_encrypted(baseline)
+            save_baseline_with_signature(baseline)
+        except Exception as e:
+            logging.error(f"Failed to save baseline securely: {e}")
 
         time.sleep(POLL_INTERVAL)  # Monitor at regular intervals
 

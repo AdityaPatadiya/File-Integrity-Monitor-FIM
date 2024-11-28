@@ -46,3 +46,45 @@
 2024-11-28 16:32:37,647 - WARNING - Folder modified: ./test\hello
 2024-11-28 16:32:37,647 - WARNING - File deleted: ./test\hello\hello.txt
 2024-11-28 16:32:46,672 - WARNING - Folder deleted: ./test\hello
+2024-11-28 17:52:05,768 - ERROR - Failed to load baseline: 
+2024-11-28 17:52:05,772 - INFO - New file added: ./test\text.txt
+2024-11-28 17:52:26,763 - INFO - New folder added: ./test\hello
+2024-11-28 17:52:38,280 - INFO - New file added: ./test\hello.txt
+2024-11-28 17:52:45,588 - WARNING - File deleted: ./test\hello.txt
+2024-11-28 17:52:49,771 - WARNING - Folder deleted: ./test\hello
+2024-11-28 18:17:07,632 - ERROR - Failed to load baseline: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:07,632 - INFO - New file added: ./test\text.txt
+2024-11-28 18:17:07,632 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:08,635 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:09,635 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:10,637 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:11,639 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:12,641 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:13,642 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:14,644 - INFO - New folder added: ./test\hello
+2024-11-28 18:17:14,644 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:15,646 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:16,648 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:17,650 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:18,651 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:19,653 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:20,654 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:21,656 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:22,657 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:23,659 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:24,662 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:25,663 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:26,665 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:27,667 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:28,668 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:29,670 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:30,672 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:31,673 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:32,674 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:33,675 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:34,678 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:35,679 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
+2024-11-28 18:17:58,849 - ERROR - Failed to load baseline: 
+2024-11-28 18:17:58,850 - INFO - New folder added: ./test\hello
+2024-11-28 18:17:58,850 - INFO - New file added: ./test\text.txt
+2024-11-28 18:18:11,426 - WARNING - Folder deleted: ./test\hello

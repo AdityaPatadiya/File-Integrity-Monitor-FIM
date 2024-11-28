@@ -1,8 +1,1 @@
-{
-    "./test\\text.txt": {
-        "type": "file",
-        "hash": "ea55c2501a4418e65422dc980d9b0c6129468ed19f971e54f331f5c309f6aed7",
-        "size": 127,
-        "last_modified": 1732766130.357033
-    }
-}
+{"./test\\text.txt": {"type": "file", "hash": "ea55c2501a4418e65422dc980d9b0c6129468ed19f971e54f331f5c309f6aed7", "size": 127, "last_modified": 1732766130.357033}}
