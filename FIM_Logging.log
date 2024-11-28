@@ -36,3 +36,13 @@
 2024-11-28 09:25:31,037 - ERROR - File modified: ./test\text.txt
 2024-11-28 09:26:11,144 - INFO - New folder added: ./test\hello
 2024-11-28 09:26:20,168 - WARNING - Folder deleted: ./test\hello
+2024-11-28 14:36:09,826 - INFO - New file added: ./test\hello.txt
+2024-11-28 14:36:25,873 - INFO - New folder added: ./test\hello
+2024-11-28 14:36:43,933 - WARNING - Folder deleted: ./test\hello
+2024-11-28 14:36:48,950 - WARNING - File deleted: ./test\hello.txt
+2024-11-28 16:31:35,426 - INFO - New folder added: ./test\hello
+2024-11-28 16:31:45,454 - WARNING - Folder modified: ./test\hello
+2024-11-28 16:31:45,454 - INFO - New file added: ./test\hello\hello.txt
+2024-11-28 16:32:37,647 - WARNING - Folder modified: ./test\hello
+2024-11-28 16:32:37,647 - WARNING - File deleted: ./test\hello\hello.txt
+2024-11-28 16:32:46,672 - WARNING - Folder deleted: ./test\hello
