@@ -1,1 +1,24 @@
-{"./test\\text.txt": {"type": "file", "hash": "ea55c2501a4418e65422dc980d9b0c6129468ed19f971e54f331f5c309f6aed7", "size": 127, "last_modified": 1732766130.357033}}
+{
+    "./test\\text.txt": {
+        "type": "file",
+        "hash": "ea55c2501a4418e65422dc980d9b0c6129468ed19f971e54f331f5c309f6aed7",
+        "size": 127,
+        "last_modified": 1732766130.357033
+    },
+    "./test\\test.txt": {
+        "type": "file",
+        "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "last_modified": 1733560820.1600873
+    },
+    "./test\\hello": {
+        "type": "folder",
+        "last_modified": 1733572228.4229877
+    },
+    "./test\\hello\\Hello.txt": {
+        "type": "file",
+        "hash": "912470b8ff00a42644631697f0c253a05812e1a0cee9ae7d87dbe67a2734ae72",
+        "size": 79,
+        "last_modified": 1733572286.8757012
+    }
+}

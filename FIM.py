@@ -3,12 +3,12 @@ import json
 import time
 import hashlib
 import logging
-from encryption_for_baseline_file.baseline_security import (
-    save_baseline_encrypted, load_baseline_encrypted, generate_key
-)
-from encryption_for_baseline_file.digital_signature import (
-    save_baseline_with_signature, load_baseline_with_signature, generate_key_pair
-)
+# from encryption_for_baseline_file.baseline_security import (
+#     save_baseline_encrypted, load_baseline_encrypted, generate_key
+# )
+# from encryption_for_baseline_file.digital_signature import (
+#     save_baseline_with_signature, load_baseline_with_signature, generate_key_pair
+# )
 
 logging.basicConfig(
     filename="FIM_Logging.log",
@@ -38,7 +38,7 @@ def load_baseline():
             baseline = json.load(f)
             # Add missing "type" keys for older baselines
             for entry_path, entry_data in baseline.items():
-                if not isinstance(entry_data, dict):
+                if not isinstance(entry_data, dict):  # if entry_data is not dictionary, then it will print the unknown type.
                     # Handle invalid or missing entries
                     baseline[entry_path] = {"type": "unknown"}
                 elif "type" not in entry_data:
@@ -55,7 +55,7 @@ def save_baseline(baseline):
 def monitor_changes(directory):
     """Monitor files and folders for integrity changes."""
     try:
-        baseline = load_baseline_encrypted()
+        baseline = load_baseline()
     except Exception as e:
         logging.error(f"Failed to load baseline: {e}")
         baseline = {}
@@ -65,10 +65,10 @@ def monitor_changes(directory):
 
         # Track files and folders in the monitored directory
         current_entries = {}
-        for root, dirs, files in os.walk(directory):
+        for root, dirs, files in os.walk(directory):  # go through all folders(dirs) and files(files) in the folders.
             # Track folders
             for folder in dirs:
-                folder_path = os.path.join(root, folder)
+                folder_path = os.path.join(root, folder)  # here root used to track of the current folder.
                 current_entries[folder_path] = {
                     "type": "folder",
                     "last_modified": os.path.getmtime(folder_path),
@@ -86,7 +86,7 @@ def monitor_changes(directory):
 
         # Check for new or modified entries
         for entry_path, current_data in current_entries.items():
-            baseline_entry = baseline.get(entry_path)
+            baseline_entry = baseline.get(entry_path)  # take all the entry path from baseline.
             if not isinstance(baseline_entry, dict):
                 # New entry
                 logging.info(f"New {current_data['type']} added: {entry_path}")
@@ -110,8 +110,8 @@ def monitor_changes(directory):
         # Update the baseline
         baseline = updated_baseline
         try:
-            save_baseline_encrypted(baseline)
-            save_baseline_with_signature(baseline)
+            save_baseline(baseline)
+            # save_baseline_with_signature(baseline)
         except Exception as e:
             logging.error(f"Failed to save baseline securely: {e}")
 

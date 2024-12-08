@@ -193,3 +193,12 @@
 2024-12-06 09:11:49,291 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
 2024-12-06 09:11:50,294 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
 2024-12-06 09:11:51,295 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
+2024-12-07 14:08:31,680 - INFO - New file added: ./test\testing_without_security.txt
+2024-12-07 14:09:01,769 - WARNING - File deleted: ./test\testing_without_security.txt
+2024-12-07 14:10:25,931 - INFO - New file added: ./test\test.txt
+2024-12-07 17:20:36,006 - INFO - New folder added: ./test\hello
+2024-12-07 17:20:36,006 - INFO - New file added: ./test\hello\Hello.txt
+2024-12-07 17:20:45,040 - ERROR - File modified: ./test\hello\Hello.txt
+2024-12-07 17:20:52,063 - ERROR - File modified: ./test\hello\Hello.txt
+2024-12-07 17:21:03,102 - ERROR - File modified: ./test\hello\Hello.txt
+2024-12-07 17:21:27,181 - ERROR - File modified: ./test\hello\Hello.txt
