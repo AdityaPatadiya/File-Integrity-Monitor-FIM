@@ -1,221 +1,44 @@
-2024-11-27 19:56:20,870 - INFO - New file added: ./test/text.txt
-2024-11-27 19:56:20,870 - WARNING - File deleted: ./test/text.txt
-2024-11-27 19:56:20,870 - ERROR - File modified: ./test/text.txt
-2024-11-27 19:59:51,840 - INFO - New file added: ./test/text1.txt
-2024-11-27 19:59:54,847 - WARNING - File deleted: ./test/text1.txt
-2024-11-27 21:54:00,263 - INFO - New file added: ./test/text1.txt
-2024-11-27 21:54:05,275 - WARNING - File deleted: ./test/text1.txt
-2024-11-27 21:57:35,893 - INFO - New file added: ./test/text1.txt
-2024-11-27 21:58:03,962 - INFO - New file added: ./test/text2.txt
-2024-11-27 21:58:08,974 - WARNING - File deleted: ./test/text2.txt
-2024-11-27 22:13:20,569 - INFO - New file added: ./test\text.txt
-2024-11-27 22:13:20,569 - INFO - New file added: ./test\text1.txt
-2024-11-27 22:13:20,569 - WARNING - File deleted: ./test/text.txt
-2024-11-27 22:13:20,569 - WARNING - File deleted: ./test/text1.txt
-2024-11-27 22:15:20,630 - INFO - New file added: ./test\asd.txt
-2024-11-27 22:15:45,646 - WARNING - File deleted: ./test\asd.txt
-2024-11-27 22:21:46,221 - INFO - New file added: ./test\hello.txt
-2024-11-27 22:22:16,241 - WARNING - File deleted: ./test\hello.txt
-2024-11-27 22:26:49,788 - INFO - New folder added: ./test\folder
-2024-11-27 22:26:57,818 - INFO - New folder added: ./test\hello
-2024-11-27 22:27:12,873 - INFO - New file added: ./test\hello.txt
-2024-11-27 22:28:05,115 - WARNING - Folder deleted: ./test\folder
-2024-11-27 22:28:05,115 - WARNING - Folder deleted: ./test\hello
-2024-11-27 22:28:05,115 - WARNING - File deleted: ./test\hello.txt
-2024-11-27 23:06:28,751 - INFO - New file added: ./test\text.txt
-2024-11-27 23:06:35,769 - INFO - New file added: ./test\hello.txt
-2024-11-27 23:06:40,785 - INFO - New folder added: ./test\hello
-2024-11-27 23:06:46,804 - WARNING - Folder deleted: ./test\hello
-2024-11-27 23:06:53,824 - WARNING - File deleted: ./test\hello.txt
-2024-11-27 23:09:39,507 - INFO - New file added: ./test\hello.txt
-2024-11-27 23:09:43,518 - INFO - New folder added: ./test\hello
-2024-11-27 23:09:44,521 - WARNING - Folder deleted: ./test\hello
-2024-11-27 23:09:46,527 - WARNING - File deleted: ./test\hello.txt
-2024-11-28 09:24:23,844 - INFO - New file added: ./test\hello.txt
-2024-11-28 09:24:56,943 - WARNING - File deleted: ./test\hello.txt
-2024-11-28 09:25:31,037 - ERROR - File modified: ./test\text.txt
-2024-11-28 09:26:11,144 - INFO - New folder added: ./test\hello
-2024-11-28 09:26:20,168 - WARNING - Folder deleted: ./test\hello
-2024-11-28 14:36:09,826 - INFO - New file added: ./test\hello.txt
-2024-11-28 14:36:25,873 - INFO - New folder added: ./test\hello
-2024-11-28 14:36:43,933 - WARNING - Folder deleted: ./test\hello
-2024-11-28 14:36:48,950 - WARNING - File deleted: ./test\hello.txt
-2024-11-28 16:31:35,426 - INFO - New folder added: ./test\hello
-2024-11-28 16:31:45,454 - WARNING - Folder modified: ./test\hello
-2024-11-28 16:31:45,454 - INFO - New file added: ./test\hello\hello.txt
-2024-11-28 16:32:37,647 - WARNING - Folder modified: ./test\hello
-2024-11-28 16:32:37,647 - WARNING - File deleted: ./test\hello\hello.txt
-2024-11-28 16:32:46,672 - WARNING - Folder deleted: ./test\hello
-2024-11-28 17:52:05,768 - ERROR - Failed to load baseline: 
-2024-11-28 17:52:05,772 - INFO - New file added: ./test\text.txt
-2024-11-28 17:52:26,763 - INFO - New folder added: ./test\hello
-2024-11-28 17:52:38,280 - INFO - New file added: ./test\hello.txt
-2024-11-28 17:52:45,588 - WARNING - File deleted: ./test\hello.txt
-2024-11-28 17:52:49,771 - WARNING - Folder deleted: ./test\hello
-2024-11-28 18:17:07,632 - ERROR - Failed to load baseline: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:07,632 - INFO - New file added: ./test\text.txt
-2024-11-28 18:17:07,632 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:08,635 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:09,635 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:10,637 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:11,639 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:12,641 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:13,642 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:14,644 - INFO - New folder added: ./test\hello
-2024-11-28 18:17:14,644 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:15,646 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:16,648 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:17,650 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:18,651 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:19,653 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:20,654 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:21,656 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:22,657 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:23,659 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:24,662 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:25,663 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:26,665 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:27,667 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:28,668 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:29,670 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:30,672 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:31,673 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:32,674 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:33,675 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:34,678 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:35,679 - ERROR - Failed to save baseline securely: Fernet key must be 32 url-safe base64-encoded bytes.
-2024-11-28 18:17:58,849 - ERROR - Failed to load baseline: 
-2024-11-28 18:17:58,850 - INFO - New folder added: ./test\hello
-2024-11-28 18:17:58,850 - INFO - New file added: ./test\text.txt
-2024-11-28 18:18:11,426 - WARNING - Folder deleted: ./test\hello
-2024-11-28 20:02:29,392 - ERROR - Failed to load baseline: 
-2024-11-28 20:02:29,392 - INFO - New file added: ./test\text.txt
-2024-12-06 09:10:13,060 - ERROR - Failed to load baseline: name 'load_baseline_encrypted' is not defined
-2024-12-06 09:10:13,067 - INFO - New file added: ./test\text.txt
-2024-12-06 09:10:13,067 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:14,076 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:15,078 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:16,080 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:17,082 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:18,085 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:19,085 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:20,087 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:21,089 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:22,090 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:23,092 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:24,094 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:25,095 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:26,097 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:27,099 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:28,101 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:29,103 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:30,105 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:31,107 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:32,109 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:33,111 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:34,113 - INFO - New file added: ./test\text1.txt
-2024-12-06 09:10:34,114 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:35,115 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:36,116 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:37,118 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:38,122 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:39,125 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:40,126 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:41,129 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:42,129 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:43,131 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:44,132 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:45,134 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:46,136 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:47,139 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:48,140 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:49,142 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:50,144 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:51,146 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:52,150 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:53,151 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:54,154 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:55,155 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:56,157 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:57,161 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:58,162 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:10:59,164 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:00,165 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:01,168 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:02,170 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:03,171 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:04,174 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:05,177 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:06,178 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:07,180 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:08,182 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:09,184 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:10,187 - INFO - New folder added: ./test\hello
-2024-12-06 09:11:10,187 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:11,189 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:12,191 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:13,193 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:14,195 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:15,198 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:16,201 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:17,203 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:18,204 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:19,206 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:20,217 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:21,223 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:22,224 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:23,227 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:24,231 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:25,232 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:26,234 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:27,236 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:28,239 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:29,241 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:30,243 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:31,247 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:32,248 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:33,252 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:34,255 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:35,260 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:36,263 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:37,264 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:38,267 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:39,269 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:40,271 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:41,273 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:42,275 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:43,278 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:44,282 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:45,283 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:46,285 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:47,287 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:48,289 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:49,291 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:50,294 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-06 09:11:51,295 - ERROR - Failed to save baseline securely: name 'save_baseline_encrypted' is not defined
-2024-12-07 14:08:31,680 - INFO - New file added: ./test\testing_without_security.txt
-2024-12-07 14:09:01,769 - WARNING - File deleted: ./test\testing_without_security.txt
-2024-12-07 14:10:25,931 - INFO - New file added: ./test\test.txt
-2024-12-07 17:20:36,006 - INFO - New folder added: ./test\hello
-2024-12-07 17:20:36,006 - INFO - New file added: ./test\hello\Hello.txt
-2024-12-07 17:20:45,040 - ERROR - File modified: ./test\hello\Hello.txt
-2024-12-07 17:20:52,063 - ERROR - File modified: ./test\hello\Hello.txt
-2024-12-07 17:21:03,102 - ERROR - File modified: ./test\hello\Hello.txt
-2024-12-07 17:21:27,181 - ERROR - File modified: ./test\hello\Hello.txt
-2024-12-08 13:10:43,707 - INFO - New folder added: .\test\hello
-2024-12-08 13:10:43,707 - INFO - New file added: .\test\test.txt
-2024-12-08 13:10:43,709 - INFO - New file added: .\test\text.txt
-2024-12-08 13:10:43,709 - INFO - New file added: .\test\hello\Hello.txt
-2024-12-08 13:10:43,709 - WARNING - File deleted: ./test\text.txt
-2024-12-08 13:10:43,709 - WARNING - File deleted: ./test\test.txt
-2024-12-08 13:10:43,709 - WARNING - Folder deleted: ./test\hello
-2024-12-08 13:10:43,709 - WARNING - File deleted: ./test\hello\Hello.txt
-2024-12-08 13:10:55,750 - WARNING - File deleted: .\test\test.txt
-2024-12-08 13:12:10,139 - INFO - New folder added: ./test\hello
-2024-12-08 13:12:10,139 - INFO - New file added: ./test\text.txt
-2024-12-08 13:12:10,139 - INFO - New file added: ./test\hello\Hello.txt
-2024-12-08 13:12:10,139 - WARNING - Folder deleted: .\test\hello
-2024-12-08 13:12:10,139 - WARNING - File deleted: .\test\text.txt
-2024-12-08 13:12:10,139 - WARNING - File deleted: .\test\hello\Hello.txt
-2024-12-08 13:12:21,187 - INFO - New file added: ./test\test.t
-2024-12-08 13:12:36,243 - WARNING - File deleted: ./test\test.t
+2024-12-12 16:44:44,636 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'44'44"
+2024-12-12 16:44:44,636 - INFO - New folder added: ./test\hello
+2024-12-12 16:44:44,636 - INFO - New file added: ./test\test.txt
+2024-12-12 16:44:44,636 - INFO - New file added: ./test\text2.txt
+2024-12-12 16:45:04,167 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'45'04"
+2024-12-12 16:45:04,167 - INFO - New folder added: ./test\hello
+2024-12-12 16:45:04,167 - INFO - New file added: ./test\test.txt
+2024-12-12 16:45:04,167 - INFO - New file added: ./test\text2.txt
+2024-12-12 16:45:23,420 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'45'23"
+2024-12-12 16:45:23,420 - INFO - New folder added: ./test\hello
+2024-12-12 16:45:23,420 - INFO - New file added: ./test\test.txt
+2024-12-12 16:45:23,420 - INFO - New file added: ./test\text2.txt
+2024-12-12 16:47:44,954 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'47'44"
+2024-12-12 16:47:44,954 - INFO - New folder added: ./test\hello
+2024-12-12 16:47:44,955 - INFO - New file added: ./test\test.txt
+2024-12-12 16:47:44,955 - INFO - New file added: ./test\text2.txt
+2024-12-12 19:32:26,984 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'32'26"
+2024-12-12 19:32:26,986 - INFO - New folder added: ./test\hello
+2024-12-12 19:32:26,986 - INFO - New file added: ./test\test.txt
+2024-12-12 19:32:26,986 - INFO - New file added: ./test\text2.txt
+2024-12-12 19:45:40,749 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'45'40"
+2024-12-12 19:45:40,750 - INFO - New folder added: ./test\hello
+2024-12-12 19:45:40,750 - INFO - New file added: ./test\test.txt
+2024-12-12 19:45:40,750 - INFO - New file added: ./test\text2.txt
+2024-12-12 19:45:56,513 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'45'56"
+2024-12-12 19:45:56,515 - INFO - New folder added: ./test\hello
+2024-12-12 19:45:56,515 - INFO - New file added: ./test\test.txt
+2024-12-12 19:45:56,515 - INFO - New file added: ./test\text2.txt
+2024-12-12 19:47:22,426 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'47'22"
+2024-12-12 19:47:22,426 - INFO - New folder added: ./test\hello
+2024-12-12 19:47:22,426 - INFO - New file added: ./test\test.txt
+2024-12-12 19:47:22,426 - INFO - New file added: ./test\text2.txt
+2024-12-12 20:12:06,870 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'12'06"
+2024-12-12 20:12:06,871 - INFO - New folder added: ./test\hello
+2024-12-12 20:12:06,871 - INFO - New file added: ./test\test.txt
+2024-12-12 20:12:06,871 - INFO - New file added: ./test\text2.txt
+2024-12-12 20:13:15,844 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'13'15"
+2024-12-12 20:13:15,846 - INFO - New folder added: ./test\hello
+2024-12-12 20:13:15,846 - INFO - New file added: ./test\test.txt
+2024-12-12 20:13:15,846 - INFO - New file added: ./test\text2.txt
+2024-12-12 20:13:20,736 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'13'20"
+2024-12-12 20:13:20,738 - INFO - New folder added: ./test\hello
+2024-12-12 20:13:20,738 - INFO - New file added: ./test\test.txt
+2024-12-12 20:13:20,738 - INFO - New file added: ./test\text2.txt
