@@ -8,7 +8,7 @@ def main():
     parser.add_argument("--view-baseline", action="store_true", help="View the current baseline data")
     parser.add_argument("--reset-baseline", action="store_true", help="Reset the baseline data")
     parser.add_argument("--view-logs", action="store_true", help="View the log file")
-    parser.add_argument("--dir", type=str, default="./test", help="Directory to monitor (default: './test')")
+    parser.add_argument("--dir", type=str, default="/test", help="Directory to monitor (default: '/test')")
 
     args = parser.parse_args()
 
@@ -21,13 +21,17 @@ def main():
     if args.view_logs:
         view_logs()
     if args.monitor:
-        if not os.path.exists(args.dir):
-            print(f"Creating monitored directory: {args.dir}")
-            os.makedirs(args.dir)
+        script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
+        monitored_dir = os.path.join(script_dir, args.dir)
+        print(monitored_dir)
+
+        if not os.path.exists(monitored_dir):
+            print(f"Creating monitored directory: {monitored_dir}")
+            os.makedirs(monitored_dir)
         print("Starting File Integrity Monitor...")
         try:
-            monitor_changes(args.dir)
-            print(args.dir)
+            monitor_changes(monitored_dir)
+            print(monitored_dir)
         except KeyboardInterrupt:
             print("\nFile Integrity Monitor stopped.")
 

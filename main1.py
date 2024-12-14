@@ -22,8 +22,8 @@ logging.basicConfig(
 # Configuration
 POLL_INTERVAL = 1  # Time interval in seconds
 BASELINE_FILE = "baseline.json"  # File to store baseline data
-BACKUP_BASELINE_FILE = r"E:/baseline_for_backup.json"
-backup_directory = r"E:/FIM_Backup/"
+BACKUP_BASELINE_FILE = "../FIM_Backup/baseline_for_backup.json"
+backup_directory = "../FIM_Backup/"
 
 def get_formatted_time(timestamp):
     """Convert a timestamp to a readable format."""
@@ -57,8 +57,10 @@ def create_backup(source_dir):
             dest_path = os.path.join(backup_dir, item)
             if os.path.isdir(item_path):
                 shutil.copytree(item_path, dest_path)
+                print(f"Copied directory {item_path} to {dest_path}")
             else:
                 shutil.copy2(item_path, dest_path)
+                print(f"Copied file {item_path} to {dest_path}")
 
         print(f"Backup created successfully at {backup_dir}")
     except Exception as e:

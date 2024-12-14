@@ -42,3 +42,6 @@
 2024-12-12 20:13:20,738 - INFO - New folder added: ./test\hello
 2024-12-12 20:13:20,738 - INFO - New file added: ./test\test.txt
 2024-12-12 20:13:20,738 - INFO - New file added: ./test\text2.txt
+2024-12-12 22:56:14,461 - WARNING - Folder deleted: ./test\hello
+2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\test.txt
+2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\text2.txt
