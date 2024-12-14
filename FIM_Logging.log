@@ -45,3 +45,17 @@
 2024-12-12 22:56:14,461 - WARNING - Folder deleted: ./test\hello
 2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\test.txt
 2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\text2.txt
+2024-12-14 11:07:50,946 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'07'50"
+2024-12-14 11:10:10,184 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'10'10"
+2024-12-14 11:10:10,192 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
+2024-12-14 11:10:10,192 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
+2024-12-14 11:10:10,192 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
+2024-12-14 11:15:10,700 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'15'10"
+2024-12-14 11:15:10,702 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
+2024-12-14 11:15:10,702 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
+2024-12-14 11:15:10,703 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
+2024-12-14 11:15:31,613 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'15'31"
+2024-12-14 11:15:31,614 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
+2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
+2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
+2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\hello\hello.txt
