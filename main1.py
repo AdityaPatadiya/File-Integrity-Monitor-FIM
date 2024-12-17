@@ -68,6 +68,7 @@ def create_backup(source_dir):
 
 def create_and_load_backup_hash():
     """create and load the hash for backup directory."""
+    print("'create_and_load_backup_hash' function called")
     calculate_hash(backup_dir)
     load_baseline(BACKUP_BASELINE_FILE)
 
