@@ -8,7 +8,7 @@ def main():
     parser.add_argument("--view-baseline", action="store_true", help="View the current baseline data")
     parser.add_argument("--reset-baseline", action="store_true", help="Reset the baseline data")
     parser.add_argument("--view-logs", action="store_true", help="View the log file")
-    parser.add_argument("--dir", type=str, default="test", help="Directory to monitor (default: './test')")
+    parser.add_argument("--dir", type=str, default="test", help="Directory to monitor (default: 'test')")
 
     args = parser.parse_args()
 

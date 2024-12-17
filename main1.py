@@ -1,17 +1,9 @@
 import os
 import json
 import time
-import stat
-import shutil
 import hashlib
 import logging
-from datetime import datetime
-# from encryption_for_baseline_file.baseline_security import (
-#     save_baseline_encrypted, load_baseline_encrypted, generate_key
-# )
-# from encryption_for_baseline_file.digital_signature import (
-#     save_baseline_with_signature, load_baseline_with_signature, generate_key_pair
-# )
+import backup
 
 logging.basicConfig(
     filename="FIM_Logging.log",
@@ -22,55 +14,10 @@ logging.basicConfig(
 # Configuration
 POLL_INTERVAL = 1  # Time interval in seconds
 BASELINE_FILE = "baseline.json"  # File to store baseline data
-BACKUP_BASELINE_FILE = "../FIM_Backup/baseline_for_backup.json"
-backup_directory = "../FIM_Backup/"
 
 def get_formatted_time(timestamp):
     """Convert a timestamp to a readable format."""
     return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
-
-def create_backup(source_dir):
-    global backup_dir
-    # Ensure the source directory exists
-    if not os.path.exists(source_dir):
-        print(f"Source directory {source_dir} does not exist.")
-        return
-
-    # Define the backup directory name
-    timestamp = datetime.now().strftime(r"%Y_%m_%d_%H'%M'%S")
-    backup_dir = os.path.join(backup_directory, f"backup_{timestamp}")
-
-    # Create the backup directory
-    os.makedirs(backup_dir, exist_ok=True)
-    os.chmod(backup_dir, 0o700)
-    print(os.R_OK)
-    print(os.W_OK)
-    print(os.X_OK)
-
-    try:
-        # Copy files and subdirectories to the backup directory
-        for item in os.listdir(source_dir):
-            item_path = os.path.join(source_dir, item)
-            if item_path == backup_dir:
-                continue  # Skip copying the backup directory into itself
-            
-            dest_path = os.path.join(backup_dir, item)
-            if os.path.isdir(item_path):
-                shutil.copytree(item_path, dest_path)
-                print(f"Copied directory {item_path} to {dest_path}")
-            else:
-                shutil.copy2(item_path, dest_path)
-                print(f"Copied file {item_path} to {dest_path}")
-
-        print(f"Backup created successfully at {backup_dir}")
-    except Exception as e:
-        print(f"An error occurred during backup: {e}")
-
-def create_and_load_backup_hash():
-    """create and load the hash for backup directory."""
-    print("'create_and_load_backup_hash' function called")
-    calculate_hash(backup_dir)
-    load_baseline(BACKUP_BASELINE_FILE)
 
 def calculate_hash(file_path):
     """Calculate the SHA-256 hash of a file."""
@@ -107,8 +54,8 @@ def save_baseline(baseline):
 def monitor_changes(directory):
     """Monitor files and folders for integrity changes."""
     try:
-        create_backup(directory)
-        create_and_load_backup_hash()
+        backup.create_backup(directory)
+        backup.create_and_load_backup_hash()
         baseline = load_baseline(BASELINE_FILE)
     except Exception as e:
         logging.error(f"Failed to load baseline: {e}")
