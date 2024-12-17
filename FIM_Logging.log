@@ -59,3 +59,8 @@
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\hello\hello.txt
+2024-12-14 11:39:15,560 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'39'15"
+2024-12-14 11:39:15,565 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
+2024-12-14 11:39:15,565 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-14 11:39:15,566 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-14 11:39:15,566 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
