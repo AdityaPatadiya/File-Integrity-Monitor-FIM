@@ -59,3 +59,23 @@
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
 2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\hello\hello.txt
+2024-12-14 11:37:25,524 - INFO - New folder added: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/hello
+2024-12-14 11:37:25,524 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/text2.txt
+2024-12-14 11:37:25,524 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/test.txt
+2024-12-14 11:37:25,524 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/hello/hello.txt
+2024-12-14 11:37:25,525 - WARNING - Folder deleted: E:\coding\PYTHON\FIM\./test\hello
+2024-12-14 11:37:25,525 - WARNING - File deleted: E:\coding\PYTHON\FIM\./test\test.txt
+2024-12-14 11:37:25,525 - WARNING - File deleted: E:\coding\PYTHON\FIM\./test\text2.txt
+2024-12-14 11:37:25,526 - WARNING - File deleted: E:\coding\PYTHON\FIM\./test\hello\hello.txt
+2024-12-14 11:38:46,776 - INFO - New folder added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/hello
+2024-12-14 11:38:46,777 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/text2.txt
+2024-12-14 11:38:46,777 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/test.txt
+2024-12-14 11:38:46,777 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/hello/hello.txt
+2024-12-14 11:38:46,777 - WARNING - Folder deleted: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/hello
+2024-12-14 11:38:46,777 - WARNING - File deleted: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/text2.txt
+2024-12-14 11:38:46,778 - WARNING - File deleted: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/test.txt
+2024-12-14 11:38:46,778 - WARNING - File deleted: /home/aditya/Documents/File-Integrity-Monitor-FIM/./test/hello/hello.txt
+2024-12-14 12:23:57,606 - INFO - New folder added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/hello
+2024-12-14 12:23:57,606 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/text2.txt
+2024-12-14 12:23:57,606 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/test.txt
+2024-12-14 12:23:57,606 - INFO - New file added: /home/aditya/Documents/File-Integrity-Monitor-FIM/test/hello/hello.txt
