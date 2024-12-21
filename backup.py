@@ -18,10 +18,7 @@ def create_backup(source_dir):
     timestamp = datetime.now().strftime(r"%Y_%m_%d_%H'%M'%S")
     backup_dir = os.path.join(backup_directory, f"backup_{timestamp}")
     os.makedirs(backup_dir, exist_ok=True)
-    os.chmod(backup_dir, 0o700)
-    # print(os.R_OK)
-    # print(os.W_OK)
-    # print(os.X_OK)
+
 
     backup_baseline = {}
 
@@ -58,20 +55,11 @@ def create_backup(source_dir):
 
 def create_and_load_backup_hash():
     """Create and load the hash for the backup directory."""
-    print("'create_and_load_backup_hash' function called")
-    hashes = {}
-    
-    # Calculate hashes for all files in the backup directory
-    for root, dirs, files in os.walk(backup_dir):
-        for file in files:
-            file_path = os.path.join(root, file)
-            file_hash = main1.calculate_hash(file_path)
-            if file_hash:  # Avoid adding None hashes
-                hashes[file_path] = file_hash
+    main1.tracking_directory(backup_dir)
     
     # Save the hashes to the backup baseline file
     with open(BACKUP_BASELINE_FILE, "w") as f:
-        json.dump(hashes, f, indent=4)
+        json.dump(main1.current_entries, f, indent=4)
     
     # Load the baseline for further use
     return main1.load_baseline(BACKUP_BASELINE_FILE)

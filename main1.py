@@ -19,6 +19,28 @@ def get_formatted_time(timestamp):
     """Convert a timestamp to a readable format."""
     return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
+def tracking_directory(directory):
+    global current_entries
+    current_entries = {}
+    for root, dirs, files in os.walk(directory):  # go through all folders(dirs) and files(files) in the folders.
+        # Track folders
+        for folder in dirs:
+            folder_path = os.path.join(root, folder)  # here root used to track of the current folder.
+            current_entries[folder_path] = {
+                "type": "folder",
+                "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
+            }
+
+        # Track files
+        for file in files:
+            file_path = os.path.join(root, file)
+            current_entries[file_path] = {
+                "type": "file",
+                "hash": calculate_hash(file_path),
+                "size": os.path.getsize(file_path),
+                "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
+            }
+
 def calculate_hash(file_path):
     """Calculate the SHA-256 hash of a file."""
     sha256 = hashlib.sha256()
@@ -65,25 +87,7 @@ def monitor_changes(directory):
         updated_baseline = baseline.copy()  # Start with a copy of the current baseline
 
         # Track files and folders in the monitored directory
-        current_entries = {}
-        for root, dirs, files in os.walk(directory):  # go through all folders(dirs) and files(files) in the folders.
-            # Track folders
-            for folder in dirs:
-                folder_path = os.path.join(root, folder)  # here root used to track of the current folder.
-                current_entries[folder_path] = {
-                    "type": "folder",
-                    "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
-                }
-
-            # Track files
-            for file in files:
-                file_path = os.path.join(root, file)
-                current_entries[file_path] = {
-                    "type": "file",
-                    "hash": calculate_hash(file_path),
-                    "size": os.path.getsize(file_path),
-                    "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
-                }
+        tracking_directory(directory)
 
         # Check for new or modified entries
         for entry_path, current_data in current_entries.items():
@@ -128,28 +132,16 @@ def view_baseline():
 
 def reset_baseline(directory):
     """Reset the baseline file."""
-    print("Resetting baseline...")
-    if os.path.exists(BASELINE_FILE):
+    print("Resetting baseline and backup_baseline...")
+    if os.path.exists(BASELINE_FILE) and os.path.exists(backup.BACKUP_BASELINE_FILE):
         os.remove(BASELINE_FILE)
-    # Generate a fresh baseline
-    baseline = {}
-    for root, dirs, files in os.walk(directory):
-        for folder in dirs:
-            folder_path = os.path.join(root, folder)
-            baseline[folder_path] = {
-                "type": "folder",
-                "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
-            }
-        for file in files:
-            file_path = os.path.join(root, file)
-            baseline[file_path] = {
-                "type": "file",
-                "hash": calculate_hash(file_path),
-                "size": os.path.getsize(file_path),
-                "last_modified": get_formatted_time(os.path.getmtime(folder_path)),
-            }
-    save_baseline(baseline)
-    print("Baseline reset complete.")
+        os.remove(backup.BACKUP_BASELINE_FILE)
+
+    tracking_directory(directory)
+    save_baseline(current_entries)
+    tracking_directory(backup.backup_dir)
+    backup.create_and_load_backup_hash()
+    print("Baseline and backup_baseline reset complete.")
 
 def view_logs():
     """View the logs from the logging file."""

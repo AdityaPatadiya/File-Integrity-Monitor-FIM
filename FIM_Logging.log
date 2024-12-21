@@ -94,3 +94,23 @@
 2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
 2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
 2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-21 10:23:08,162 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
+2024-12-21 10:23:08,162 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
+2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-21 10:25:58,803 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
+2024-12-21 10:25:58,807 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
+2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-21 10:26:49,437 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
+2024-12-21 10:26:49,437 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
+2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-21 10:32:21,141 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
+2024-12-21 10:32:21,141 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
+2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
