@@ -78,49 +78,87 @@ def monitor_changes(directory):
     try:
         backup.create_backup(directory)
         backup.create_and_load_backup_hash()
+        backup_baseline = backup.backup_entries
+        # for key in list(backup_baseline.keys()):
+        #     normalized_key = os.path.abspath(key)
+        #     if normalized_key != key:
+        #         backup_baseline[normalized_key] = backup_baseline.pop(key)
         baseline = load_baseline(BASELINE_FILE)
     except Exception as e:
         logging.error(f"Failed to load baseline: {e}")
         baseline = {}
 
     while True:
-        updated_baseline = baseline.copy()  # Start with a copy of the current baseline
-
-        # Track files and folders in the monitored directory
-        tracking_directory(directory)
-
-        # Check for new or modified entries
-        for entry_path, current_data in current_entries.items():
-            baseline_entry = baseline.get(entry_path)  # take all the entry path from baseline.
-            if not isinstance(baseline_entry, dict):
-                # New entry
-                logging.info(f"New {current_data['type']} added: {entry_path}")
-                updated_baseline[entry_path] = current_data
-            elif current_data["type"] == "file" and current_data["hash"] != baseline_entry.get("hash"):
-                # Modified file
-                logging.error(f"File modified: {entry_path}")
-                updated_baseline[entry_path] = current_data
-            elif current_data["last_modified"] != baseline_entry.get("last_modified"):
-                # Modified folder
-                logging.warning(f"Folder modified: {entry_path}")
-                updated_baseline[entry_path] = current_data
-
-        # Check for deleted entries
-        for entry_path in baseline:
-            if entry_path not in current_entries:
-                entry_type = baseline[entry_path]["type"]
-                logging.warning(f"{entry_type.capitalize()} deleted: {entry_path}")
-                updated_baseline.pop(entry_path, None)
-
-        # Update the baseline
-        baseline = updated_baseline
         try:
-            save_baseline(baseline)
-            # save_baseline_with_signature(baseline)
-        except Exception as e:
-            logging.error(f"Failed to save baseline securely: {e}")
+            updated_baseline = baseline.copy()  # Start with a copy of the current baseline
+            # Track files and folders in the monitored directory
+            tracking_directory(directory)
+            
+            current_keys = set(current_entries.keys())
+            backup_keys = set(backup_baseline.keys())
 
-        time.sleep(POLL_INTERVAL)  # Monitor at regular intervals
+            added_key = current_keys - backup_keys
+            common_keys = current_keys & backup_keys
+            deleted_keys = set(map(os.path.abspath, backup_baseline.keys())) - set(map(os.path.abspath, current_entries.keys()))
+
+            for key in common_keys:
+                current_entry = current_entries.get(key, {})
+                backup_entry = backup_baseline.get(key, {})
+
+                if not isinstance(current_entry, dict) or not isinstance(backup_entry, dict):
+                    logging.error(f"Invalid entry format for key: {key}")
+                    continue
+
+                if "type" not in current_entry or "type" not in backup_entry:
+                    logging.error(f"Missing 'type' key for key: {key}")
+                    continue
+
+                if current_entry["type"] == "file":
+                    if "hash" not in current_entry or "hash" not in backup_entry:
+                        logging.error(f"Missing 'hash' key for file: {key}")
+                        continue
+
+                    if current_entry["hash"] != backup_entry["hash"]:
+                        logging.warning(f"File midified: {key}")
+                elif "last_modified" in current_entry and "last_modified" in backup_entry:
+                    if current_entry["last_modified"] != backup_entry["last_modified"]:
+                        logging.warning(f"Folder modified: {key}")
+
+            for key in added_key:
+                entry = current_entries.get(key, {})
+                if not isinstance(entry, dict) or "type" not in entry:
+                    logging.error(f"Invalid entry format for added key: {key}")
+                    continue
+
+                if entry["type"] == "file":
+                    logging.info(f"New File is added: {key}")
+                else:
+                    logging.info(f"New folder is added: {key}")
+
+            for key in deleted_keys:
+                if not isinstance(entry, dict) or "type" not in entry:
+                    logging.error(f"Invalid or missing 'type' key for deleted key: {key}")
+                    continue
+
+                if entry["type"] == "file":
+                    logging.warning(f"File deleted: {key}")
+                else:
+                    logging.warning(f"folder deleted: {key}")
+
+            # Update the baseline
+            updated_baseline = current_entries.copy()
+            baseline = updated_baseline
+            backup_baseline = baseline.copy()
+
+            try:
+                save_baseline(baseline)
+                # save_baseline_with_signature(baseline)
+            except Exception as e:
+                logging.error(f"Failed to save baseline securely: {e}")
+
+            time.sleep(POLL_INTERVAL)  # Monitor at regular intervals
+        except Exception as e:
+            print(f"Error while monitoring: {e}")
 
 def view_baseline():
     """View the current baseline data."""
@@ -136,6 +174,11 @@ def reset_baseline(directory):
     if os.path.exists(BASELINE_FILE) and os.path.exists(backup.BACKUP_BASELINE_FILE):
         os.remove(BASELINE_FILE)
         os.remove(backup.BACKUP_BASELINE_FILE)
+
+    backup.create_backup(directory)
+    if not backup.backup_dir:
+        print("Backup directory not initialized. Aborting reset.")
+        return
 
     tracking_directory(directory)
     save_baseline(current_entries)

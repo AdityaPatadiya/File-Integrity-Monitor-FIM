@@ -1,116 +1,12 @@
-2024-12-12 16:44:44,636 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'44'44"
-2024-12-12 16:44:44,636 - INFO - New folder added: ./test\hello
-2024-12-12 16:44:44,636 - INFO - New file added: ./test\test.txt
-2024-12-12 16:44:44,636 - INFO - New file added: ./test\text2.txt
-2024-12-12 16:45:04,167 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'45'04"
-2024-12-12 16:45:04,167 - INFO - New folder added: ./test\hello
-2024-12-12 16:45:04,167 - INFO - New file added: ./test\test.txt
-2024-12-12 16:45:04,167 - INFO - New file added: ./test\text2.txt
-2024-12-12 16:45:23,420 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'45'23"
-2024-12-12 16:45:23,420 - INFO - New folder added: ./test\hello
-2024-12-12 16:45:23,420 - INFO - New file added: ./test\test.txt
-2024-12-12 16:45:23,420 - INFO - New file added: ./test\text2.txt
-2024-12-12 16:47:44,954 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_16'47'44"
-2024-12-12 16:47:44,954 - INFO - New folder added: ./test\hello
-2024-12-12 16:47:44,955 - INFO - New file added: ./test\test.txt
-2024-12-12 16:47:44,955 - INFO - New file added: ./test\text2.txt
-2024-12-12 19:32:26,984 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'32'26"
-2024-12-12 19:32:26,986 - INFO - New folder added: ./test\hello
-2024-12-12 19:32:26,986 - INFO - New file added: ./test\test.txt
-2024-12-12 19:32:26,986 - INFO - New file added: ./test\text2.txt
-2024-12-12 19:45:40,749 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'45'40"
-2024-12-12 19:45:40,750 - INFO - New folder added: ./test\hello
-2024-12-12 19:45:40,750 - INFO - New file added: ./test\test.txt
-2024-12-12 19:45:40,750 - INFO - New file added: ./test\text2.txt
-2024-12-12 19:45:56,513 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'45'56"
-2024-12-12 19:45:56,515 - INFO - New folder added: ./test\hello
-2024-12-12 19:45:56,515 - INFO - New file added: ./test\test.txt
-2024-12-12 19:45:56,515 - INFO - New file added: ./test\text2.txt
-2024-12-12 19:47:22,426 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_19'47'22"
-2024-12-12 19:47:22,426 - INFO - New folder added: ./test\hello
-2024-12-12 19:47:22,426 - INFO - New file added: ./test\test.txt
-2024-12-12 19:47:22,426 - INFO - New file added: ./test\text2.txt
-2024-12-12 20:12:06,870 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'12'06"
-2024-12-12 20:12:06,871 - INFO - New folder added: ./test\hello
-2024-12-12 20:12:06,871 - INFO - New file added: ./test\test.txt
-2024-12-12 20:12:06,871 - INFO - New file added: ./test\text2.txt
-2024-12-12 20:13:15,844 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'13'15"
-2024-12-12 20:13:15,846 - INFO - New folder added: ./test\hello
-2024-12-12 20:13:15,846 - INFO - New file added: ./test\test.txt
-2024-12-12 20:13:15,846 - INFO - New file added: ./test\text2.txt
-2024-12-12 20:13:20,736 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "E:/FIM_Backup/backup_2024_12_12_20'13'20"
-2024-12-12 20:13:20,738 - INFO - New folder added: ./test\hello
-2024-12-12 20:13:20,738 - INFO - New file added: ./test\test.txt
-2024-12-12 20:13:20,738 - INFO - New file added: ./test\text2.txt
-2024-12-12 22:56:14,461 - WARNING - Folder deleted: ./test\hello
-2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\test.txt
-2024-12-12 22:56:14,461 - WARNING - File deleted: ./test\text2.txt
-2024-12-14 11:07:50,946 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'07'50"
-2024-12-14 11:10:10,184 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'10'10"
-2024-12-14 11:10:10,192 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
-2024-12-14 11:10:10,192 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
-2024-12-14 11:10:10,192 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
-2024-12-14 11:15:10,700 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'15'10"
-2024-12-14 11:15:10,702 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
-2024-12-14 11:15:10,702 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
-2024-12-14 11:15:10,703 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
-2024-12-14 11:15:31,613 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_14_11'15'31"
-2024-12-14 11:15:31,614 - INFO - New folder added: E:\coding\PYTHON\FIM\./test\hello
-2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\test.txt
-2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\text2.txt
-2024-12-14 11:15:31,614 - INFO - New file added: E:\coding\PYTHON\FIM\./test\hello\hello.txt
-2024-12-17 17:10:01,567 - ERROR - Failed to load baseline: [Errno 13] Permission denied: "../FIM_Backup/backup_2024_12_17_17'10'01"
-2024-12-17 17:10:01,576 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 17:10:01,576 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 17:10:01,581 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 17:10:01,581 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 17:32:56,392 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 17:32:56,393 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 17:32:56,393 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 17:32:56,393 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 17:32:56,393 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 17:34:36,548 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 17:34:36,550 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 17:34:36,550 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 17:34:36,550 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 17:34:36,550 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 17:40:04,535 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 17:40:04,535 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 17:40:04,535 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 17:40:04,535 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 17:40:04,535 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 18:58:01,827 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 18:58:01,827 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 18:58:01,827 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 18:58:01,827 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 18:58:01,827 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 19:03:14,276 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 19:03:14,276 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 19:03:14,276 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 19:03:14,276 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 19:03:14,276 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-17 19:43:10,676 - ERROR - Failed to load baseline: dump() missing 1 required positional argument: 'fp'
-2024-12-17 19:43:10,677 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-17 19:43:10,677 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-21 10:23:08,162 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
-2024-12-21 10:23:08,162 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-21 10:23:08,162 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-21 10:25:58,803 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
-2024-12-21 10:25:58,807 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-21 10:25:58,807 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-21 10:26:49,437 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
-2024-12-21 10:26:49,437 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-21 10:26:49,437 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
-2024-12-21 10:32:21,141 - ERROR - Failed to load baseline: walk() missing 1 required positional argument: 'top'
-2024-12-21 10:32:21,141 - INFO - New folder added: E:\coding\PYTHON\FIM\test\hello
-2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\test.txt
-2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\text2.txt
-2024-12-21 10:32:21,141 - INFO - New file added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-23 19:44:03,228 - INFO - New File is added: E:\coding\PYTHON\FIM\test\hello\nested_folder\test.txt
+2024-12-23 19:44:03,228 - INFO - New File is added: E:\coding\PYTHON\FIM\test\hello\hello.txt
+2024-12-23 19:44:03,230 - INFO - New File is added: E:\coding\PYTHON\FIM\test\text2.txt
+2024-12-23 19:44:03,230 - INFO - New folder is added: E:\coding\PYTHON\FIM\test\hello\nested_folder
+2024-12-23 19:44:03,230 - INFO - New folder is added: E:\coding\PYTHON\FIM\test\hello
+2024-12-23 19:44:03,230 - INFO - New File is added: E:\coding\PYTHON\FIM\test\test.txt
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\hello
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\hello\nested_folder\test.txt
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\test.txt
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\hello\hello.txt
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\hello\nested_folder
+2024-12-23 19:44:03,230 - WARNING - File deleted: E:\coding\PYTHON\FIM_Backup\backup_2024_12_23_19_44_03\text2.txt
