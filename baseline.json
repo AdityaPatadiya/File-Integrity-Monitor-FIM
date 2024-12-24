@@ -1,6 +1,7 @@
 {
     "E:\\coding\\PYTHON\\FIM\\test\\hello": {
         "type": "folder",
+        "hash": "81826177ac14b611cab2ca97cb8bda779fcf359bfa0590253238c9da931b4f4a",
         "last_modified": "2024-12-22 00:09:04"
     },
     "E:\\coding\\PYTHON\\FIM\\test\\test.txt": {
@@ -17,6 +18,7 @@
     },
     "E:\\coding\\PYTHON\\FIM\\test\\hello\\nested_folder": {
         "type": "folder",
+        "hash": "a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a",
         "last_modified": "2024-12-21 12:06:14"
     },
     "E:\\coding\\PYTHON\\FIM\\test\\hello\\hello.txt": {

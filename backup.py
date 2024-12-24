@@ -36,6 +36,7 @@ def create_backup(source_dir):
                 shutil.copytree(item_path, dest_path)
                 backup_baseline[dest_path] = {
                     "type": "folder",
+                    "hash": main1.calculate_folder_hash(item_path),
                     "last_modified": main1.get_formatted_time(os.path.getmtime(item_path)),
                 }
             else:
@@ -65,6 +66,7 @@ def create_and_load_backup_hash():
             folder_path = os.path.join(root, folder)
             backup_entries[folder_path] = {
                 "type": "folder",
+                "hash": main1.calculate_folder_hash(folder_path),
                 "last_modified": main1.get_formatted_time(os.path.getmtime(folder_path)),
             }
 
