@@ -1,6 +1,6 @@
-import argparse
 import os
-from main1 import monitor_changes, view_baseline, reset_baseline, view_logs
+import argparse
+import FIM
 
 def main():
     parser = argparse.ArgumentParser(description="File Integrity Monitor CLI Tool")
@@ -13,24 +13,23 @@ def main():
     args = parser.parse_args()
 
     if args.view_baseline:
-        view_baseline()
+        FIM.view_baseline()
     if args.reset_baseline:
-        reset_baseline(args.dir)
+        FIM.reset_baseline(args.dir)
     if not (args.monitor or args.view_baseline or args.reset_baseline or args.view_logs):
         parser.print_help()
     if args.view_logs:
-        view_logs()
+        FIM.view_logs()
     if args.monitor:
         script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
         monitored_dir = os.path.join(script_dir, args.dir)
-        print(monitored_dir)
 
         if not os.path.exists(monitored_dir):
             print(f"Creating monitored directory: {monitored_dir}")
             os.makedirs(monitored_dir)
         print("Starting File Integrity Monitor...")
         try:
-            monitor_changes(monitored_dir)
+            FIM.monitor_changes(monitored_dir)
             print(monitored_dir)
         except KeyboardInterrupt:
             print("\nFile Integrity Monitor stopped.")
