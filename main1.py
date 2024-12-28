@@ -4,6 +4,7 @@ import time
 import hashlib
 import logging
 from pathlib import Path
+from database import database_operation
 
 
 class FIM_monitor:
@@ -11,12 +12,15 @@ class FIM_monitor:
         self.BASELINE_FILE = "baseline.json"
         self.POLL_INTERVAL = 1
         self.current_entries = {}
+        self.baseline_fle_path = os.path.abspath(self.BASELINE_FILE)
+        self.database_instance = database_operation()
 
-    logging.basicConfig(
-        filename="FIM_Logging.log",
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+        logging.basicConfig(
+            filename="FIM_Logging.log",
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s"
+        )
+        self.database_instance.database_table_creation()
 
     def get_formatted_time(self, timestamp):
         """Convert a timestamp to a readable format."""
@@ -40,6 +44,7 @@ class FIM_monitor:
                     "size": os.path.getsize(file_path),
                     "last_modified": self.get_formatted_time(os.path.getmtime(folder_path)),
                 }
+        return self.current_entries
 
     def calculate_hash(self, file_path):
         """Calculate the SHA-256 hash of a file."""
@@ -65,6 +70,15 @@ class FIM_monitor:
                 sha256.update(subfolder_hash.encode())  # Include subfolder's hash
         return sha256.hexdigest()
 
+    def save_baseline(self, baseline):
+        """Save the updated baseline to file."""
+        try:
+            with open(self.BASELINE_FILE, "w") as f:
+                json.dump(baseline, f, indent=4)
+            self.database_instance.store_information(self.current_entries)
+        except Exception as e:
+            logging.error(f"Error saving baseline: {e}")
+
     def load_baseline(self, baseline_file):
         """Load the baseline from file and ensure it has valid structure."""
         if os.path.exists(baseline_file):
@@ -77,8 +91,3 @@ class FIM_monitor:
                         baseline[entry_path]["type"] = "file"
                 return baseline
         return {}
-
-    def save_baseline(self, baseline):
-        """Save the updated baseline to file."""
-        with open(self.BASELINE_FILE, "w") as f:
-            json.dump(baseline, f, indent=4)
