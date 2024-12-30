@@ -2,71 +2,130 @@ import os
 import time
 import json
 import logging
-from main1 import FIM_monitor
 from backup import Backup
+from database import database_operation
+from main1 import FIM_monitor
 
-fim_instance = FIM_monitor()
-backup_instance = Backup()
 
-def monitor_changes(directory):
-        """Monitor files and folders for integrity changes."""
-        try:
-            backup_instance.create_backup(directory)
-            fim_instance.tracking_directory(directory)
-            fim_instance.save_baseline(fim_instance.current_entries)
-            baseline = fim_instance.load_baseline(fim_instance.BASELINE_FILE)
-            # print(f"{baseline.values()}\n")
-        except Exception as e:
-            baseline = {}
-            pass
+class monitor_changes:
+    def __init__(self):
+        self.reported_changes = {
+            "added": {},
+            "modified": {},
+            "deleted": {},
+        }
+        self.backup_instance = Backup()
+        self.fim_instance = FIM_monitor()
+        self.database_instance = database_operation()
 
-        while True:
+    def monitor_changes(self, directory):
+            """Monitor files and folders for integrity changes."""
             try:
-                
-
-                updated_baseline = fim_instance.current_entries.copy()
-                # print(f"updated_baseline: {updated_baseline}\n")
-                baseline = updated_baseline
-                # print(f"baseline: {baseline}\n")
-                backup_baseline = baseline.copy()
-                # print(f"backup_baseline: {backup_baseline}\n")
-
-                try:
-                    fim_instance.save_baseline(baseline)  # it will update the baseline.
-                except Exception as e:
-                    logging.error(f"Failed to save baseline securely: {e}")
-
-                time.sleep(fim_instance.POLL_INTERVAL)
+                self.backup_instance.create_backup(directory)
+                if os.path.exists(self.fim_instance.BASELINE_FILE) == False:
+                    self.fim_instance.tracking_directory(directory)
+                    self.fim_instance.save_baseline(self.fim_instance.current_entries)
+                    baseline = self.fim_instance.load_baseline(self.fim_instance.BASELINE_FILE)
+                    print(f"{baseline}\n")
             except Exception as e:
-                print(f"Error while monitoring: {e}")
+                baseline = {}
 
-def view_baseline():
-    """View the current baseline data."""
-    if os.path.exists(fim_instance.BASELINE_FILE):
-        with open(fim_instance.BASELINE_FILE, "r") as f:
-            print(json.dumps(json.load(f), indent=4))
-    else:
-        print("Baseline file not found.")
+            while True:
+                try:
+                    for root, dirs, files in os.walk(directory):
+                        for folder in dirs:
+                            folder_path = os.path.join(root, folder)
+                            original_folder_hash = self.database_instance.fetch_data(folder_path)
 
-def reset_baseline(directory):
-    """Reset the baseline file."""
-    print("Resetting baseline and backup_baseline...")
-    if os.path.exists(fim_instance.BASELINE_FILE):
-        os.remove(fim_instance.BASELINE_FILE)
+                            if original_folder_hash:
+                                current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
+                                if current_folder_hash:
+                                    if folder_path in self.reported_changes["modified"]:
+                                        if current_folder_hash != self.reported_changes["modified"][folder_path]:
+                                            logging.error(f"Folder modified: {folder_path}")
+                                            self.reported_changes["modified"][folder_path] = current_folder_hash
+                                    else:
+                                        if current_folder_hash != original_folder_hash:
+                                            logging.error(f"Folder modified: {folder_path}")
+                                            self.reported_changes["modified"][folder_path] = current_folder_hash
+                                else:
+                                    if original_folder_hash in self.reported_changes["deleted"][folder_path]:
+                                        continue
+                                    else:
+                                        logging.info(f"Folder deleted: {folder_path}")
+                                        self.reported_changes["deleted"][folder_path] = original_folder_hash
+                            else:
+                                if current_folder_hash:
+                                    if folder_path in self.reported_changes["added"][folder_path]:
+                                        continue
+                                    else:
+                                        logging.warning(f"Folder added: {folder_path}")
+                                        self.reported_changes["added"][folder_path] = current_folder_hash
+                                else:
+                                    logging.error(f"Unrecognized Error for: {folder_path}")
 
-    backup_instance.create_backup(directory)
-    if not backup_instance.backup_dir:
-        print("backup_instance directory not initialized. Aborting reset.")
-        return
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            original_file_hash = self.database_instance.fetch_data(file_path)
 
-    fim_instance.tracking_directory(directory)
-    fim_instance.save_baseline(fim_instance.current_entries)
-    print("Baseline and backup_baseline reset complete.")
+                            if original_file_hash:
+                                current_file_hash = self.fim_instance.calculate_hash(file_path)
+                                if current_file_hash:
+                                    if file_path in self.reported_changes["modified"]:
+                                        if current_file_hash != self.reported_changes["modified"][file_path]:
+                                            logging.error(f"File modified: {file_path}")
+                                            self.reported_changes["modified"][file_path] = current_file_hash
+                                    else:
+                                        if current_file_hash != original_file_hash:
+                                            logging.error(f"File modified: {file_path}")
+                                            self.reported_changes["modified"][file_path] = current_file_hash
+                                else:
+                                    if original_file_hash in self.reported_changes["deleted"][file_path]:
+                                        continue
+                                    else:
+                                        logging.info(f"File deleted: {file_path}")
+                                        self.reported_changes["deleted"][file_path] = original_file_hash
+                            else:
+                                if current_file_hash:
+                                    if file_path in self.reported_changes["added"][file_path]:
+                                        continue
+                                    else:
+                                        logging.warning(f"File added: {file_path}")
+                                        self.reported_changes["added"][file_path] = current_file_hash
+                                else:
+                                    logging.error(f"Unrecognized Error for: {file_path}")
 
-def view_logs():
-    """View the logs from the logging file."""
-    if os.path.exists("FIM_Logging.log"):
-            with open("FIM_Logging.log", "r") as log_file:
-                print(log_file.read())
-    else:
-        print("Log file not found.")
+                    time.sleep(self.fim_instance.POLL_INTERVAL)
+                except Exception as e:
+                    print(f"Error while monitoring: {e}")
+
+    def view_baseline(self):
+        """View the current baseline data."""
+        if os.path.exists(self.fim_instance.BASELINE_FILE):
+            with open(self.fim_instance.BASELINE_FILE, "r") as f:
+                print(json.dumps(json.load(f), indent=4))
+        else:
+            print("Baseline file not found.")
+
+    def reset_baseline(self, directory):
+        """Reset the baseline file."""
+        print("Resetting baseline and backup_baseline...")
+        if os.path.exists(self.fim_instance.BASELINE_FILE):
+            os.remove(self.fim_instance.BASELINE_FILE)
+
+        self.backup_instance.create_backup(directory)
+        if not self.backup_instance.backup_dir:
+            print("self.backup_instance directory not initialized. Aborting reset.")
+            return
+
+        self.fim_instance.tracking_directory(directory)
+        self.fim_instance.save_baseline(self.fim_instance.current_entries)
+        print("Baseline and backup_baseline reset complete.")
+
+    def view_logs(self):
+        """View the logs from the logging file."""
+        if os.path.exists("FIM_Logging.log"):
+                with open("FIM_Logging.log", "r") as log_file:
+                    print(log_file.read())
+        else:
+            print("Log file not found.")

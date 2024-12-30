@@ -33,9 +33,18 @@ class database_operation:
                     modified_time = entry_data.get("last_modified", "")
                 self.cursor.execute('INSERT OR REPLACE INTO baseline (path, hash, last_modified) VALUES (?, ?, ?)', (entry_path, file_hash, modified_time))
             self.conn.commit()
-            logging.info("Information successfuly stored in the database.")
+            # logging.info("Information successfuly stored in the database.")
         except sqlite3.Error as e:
             logging.error(f"Error storing information in the database: {e}")
+
+    def fetch_data(self, file_path):
+        try:
+            self.cursor.execute('SELECT hash FROM baseline WHERE path=?', (file_path,))
+            result = self.cursor.fetchone()
+            hash_values = result[0]
+            return hash_values
+        except sqlite3.Error as e:
+            logging.error(f"Error while fetching the data: {e}")
 
     def close_connection(self):
         try:
