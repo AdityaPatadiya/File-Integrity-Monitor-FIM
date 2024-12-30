@@ -13,19 +13,18 @@ def main():
     parser.add_argument("--dir", type=str, default="test", help="Directory to monitor (default: 'test')")
 
     args = parser.parse_args()
+    script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
+    monitored_dir = os.path.join(script_dir, args.dir)
 
     if args.view_baseline:
         monitor_changes.view_baseline()
     if args.reset_baseline:
-        monitor_changes.reset_baseline(args.dir)
+        monitor_changes.reset_baseline(monitored_dir)
     if not (args.monitor or args.view_baseline or args.reset_baseline or args.view_logs):
         parser.print_help()
     if args.view_logs:
         monitor_changes.view_logs()
     if args.monitor:
-        script_dir = os.path.dirname(os.path.abspath(__file__))  # Directory where the script is located
-        monitored_dir = os.path.join(script_dir, args.dir)
-
         if not os.path.exists(monitored_dir):
             print(f"Creating monitored directory: {monitored_dir}")
             os.makedirs(monitored_dir)
