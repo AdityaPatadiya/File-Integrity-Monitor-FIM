@@ -36,7 +36,7 @@ class CLI:
                     os.mkdir(dir)
             print("Starting the Integrity Monitor.")
             try:
-                self.monitor_changes.monitor_changes(monitored_dirs)
+                self.monitor_changes.monitor_changes(monitored_dirs, self.exclude_files)
             except InterruptedError:
                 print("\n File Integrity Monitor stopped.")
 

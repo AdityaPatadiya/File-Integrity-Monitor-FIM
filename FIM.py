@@ -18,7 +18,7 @@ class monitor_changes:
         self.fim_instance = FIM_monitor()
         self.database_instance = database_operation()
 
-    def monitor_changes(self, directories):
+    def monitor_changes(self, directories, excluded_files):
         try:
             if not os.path.exists(self.fim_instance.BASELINE_FILE):
                 for directory in directories:
@@ -26,15 +26,17 @@ class monitor_changes:
                     self.fim_instance.tracking_directory(directory)
                     self.fim_instance.save_baseline(self.fim_instance.current_entries)
                     self.fim_instance.load_baseline(self.fim_instance.BASELINE_FILE)
-                    # print(f"Baseline for {directory}: {baseline}\n")
         except Exception as e:
             logging.error
 
         while True:
             try:
                 for directory in directories:
-                    print(f"Monitoring: {directory}")
-                    self._monitor_directory(directory)
+                    if directory in excluded_files:
+                        print(f"Directory {directory} excluded.")
+                        continue
+                    else:
+                        self._monitor_directory(directory)
                 time.sleep(self.fim_instance.POLL_INTERVAL)
             except Exception as e:
                 logging.error(f"Error while monitoring directories: {e}")
