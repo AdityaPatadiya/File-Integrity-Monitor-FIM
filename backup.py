@@ -1,7 +1,5 @@
 import os
-import json
 import shutil
-from main1 import FIM_monitor
 from datetime import datetime
 
 

@@ -10,7 +10,7 @@ from database import database_operation
 class FIM_monitor:
     def __init__(self):
         self.BASELINE_FILE = "baseline.json"
-        self.POLL_INTERVAL = 1
+        self.POLL_INTERVAL = 3
         self.current_entries = {}
         self.baseline_fle_path = os.path.abspath(self.BASELINE_FILE)
         self.database_instance = database_operation()
@@ -62,6 +62,7 @@ class FIM_monitor:
         """Calculate the SHA-256 hash of a folder."""
         sha256 = hashlib.sha256()
         folder = Path(folder_path)
+        sha256.update(folder.name.encode())
         entries = sorted(folder.iterdir(), key=lambda x: x.name)
         for entry in entries:
             sha256.update(entry.name.encode())  # Include the name of the file/folder
