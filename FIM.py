@@ -114,20 +114,28 @@ class monitor_changes:
         else:
             print("Baseline file not found.")
 
-    def reset_baseline(self, directory):
-        """Reset the baseline file."""
-        print("Resetting baseline and backup_baseline...")
-        if os.path.exists(self.fim_instance.BASELINE_FILE):
-            os.remove(self.fim_instance.BASELINE_FILE)
+    def reset_baseline(self, directories):
+        """Reset the baseline file for multiple directories."""
+        print("Resetting baseline and backup_baseline for specified directories...")
 
-        self.backup_instance.create_backup(directory)
-        if not self.backup_instance.backup_dir:
-            print("self.backup_instance directory not initialized. Aborting reset.")
-            return
+        for directory in directories:
+            if not os.path.exists(directory):
+                print(f"Directory not found: {directory}. Skipping.")
+                continue
 
-        self.fim_instance.tracking_directory(directory)
-        self.fim_instance.save_baseline(self.fim_instance.current_entries)
-        print("Baseline and backup_baseline reset complete.")
+            print(f"Resetting baseline for: {directory}")
+            if os.path.exists(self.fim_instance.BASELINE_FILE):
+                os.remove(self.fim_instance.BASELINE_FILE)
+
+            self.backup_instance.create_backup(directory)
+            if not self.backup_instance.backup_dir:
+                print(f"Backup directory not initialized for {directory}. Skipping.")
+                continue
+
+            self.fim_instance.tracking_directory(directory)
+            self.fim_instance.save_baseline(self.fim_instance.current_entries)
+
+        print("Baseline and backup_baseline reset complete for all valid directories.")
 
     def view_logs(self):
         """View the logs from the logging file."""

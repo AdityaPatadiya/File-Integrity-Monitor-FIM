@@ -17,7 +17,7 @@ class Backup:
             print(f"Source directory {source_dir} does not exist.")
             return
 
-        timestamp = datetime.now().strftime(r"%Y_%m_%d_%H_%M_%S")
+        timestamp = datetime.now().strftime(r"%Y_%m_%d_%H_%M")
         self.backup_dir = self.normalized_path(os.path.join(self.backup_directory, f"backup_{timestamp}"))
         os.makedirs(self.backup_dir, exist_ok=True)
 
