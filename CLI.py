@@ -37,7 +37,7 @@ class CLI:
             print("Starting the Integrity Monitor.")
             try:
                 self.monitor_changes.monitor_changes(monitored_dirs, self.exclude_files)
-            except InterruptedError:
+            except KeyboardInterrupt:
                 print("\n File Integrity Monitor stopped.")
 
 
