@@ -10,7 +10,7 @@ class CLI:
 
     def main(self):
         parser = argparse.ArgumentParser(description="File Integrity Monitor CLI Tool")
-        parser.add_argument("--monitor", type=str, help="Start monitoring multiple directory")
+        parser.add_argument("--monitor", action="store_true", help="Start monitoring multiple directory")
         parser.add_argument("--view-baseline", action="store_true", help="View the current baseline data")
         parser.add_argument("--reset-baseline", action="store_true", help="Reset the baseline data")
         parser.add_argument("--view-logs", action="store_true", help="View the log file")

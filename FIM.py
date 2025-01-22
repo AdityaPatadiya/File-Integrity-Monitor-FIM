@@ -17,6 +17,50 @@ class monitor_changes:
         self.backup_instance = Backup()
         self.fim_instance = FIM_monitor()
         self.database_instance = database_operation()
+        self.current_file_hash = ""
+        self.original_file_hash = ""
+        self.current_folder_hash = ""
+        self.original_folder_hash = ""
+
+    def file_folder_addition(self, _path):
+        if os.path.isfile(_path):
+            if _path not in self.reported_changes["added"]:
+                logging.warning(f"File added: {_path}")
+                self.reported_changes["added"][_path] = self.current_file_hash
+        else:
+            if _path not in self.reported_changes["added"]:
+                logging.warning(f"Folder added: {_path}")
+                self.reported_changes["added"][_path] = self.current_folder_hash
+
+    def file_folder_modification(self, _path):
+        if os.path.isfile(_path):
+            if _path in self.reported_changes["modified"]:
+                if self.current_file_hash != self.reported_changes["modified"][_path]:
+                    logging.error(f"File modified: {_path}")
+                    self.reported_changes["modified"][_path] = self.current_file_hash
+            else:
+                if self.current_file_hash != self.original_file_hash:
+                    logging.error(f"File modified: {_path}")
+                    self.reported_changes["modified"][_path] = self.current_file_hash
+        else:
+            if _path in self.reported_changes["modified"]:
+                if self.current_folder_hash != self.reported_changes["modified"][_path]:
+                    logging.error(f"Folder modified: {_path}")
+                    self.reported_changes["modified"][_path] = self.current_folder_hash
+            else:
+                if self.current_folder_hash != self.original_folder_hash:
+                    logging.error(f"Folder modified: {_path}")
+                    self.reported_changes["modified"][_path] = self.current_folder_hash
+
+    def file_folder_deletion(self, _path):
+        if os.path.isfile(_path):
+            if self.original_file_hash not in self.reported_changes["deleted"]:
+                logging.info(f"File deleted: {_path}")
+                self.reported_changes["deleted"][_path] = self.original_file_hash
+        else:
+            if self.original_folder_hash not in self.reported_changes["deleted"]:
+                logging.info(f"Folder deleted: {_path}")
+                self.reported_changes["deleted"][_path] = self.original_folder_hash
 
     def monitor_changes(self, directories, excluded_files):
         try:
@@ -27,7 +71,7 @@ class monitor_changes:
                     self.fim_instance.save_baseline(self.fim_instance.current_entries)
                     self.fim_instance.load_baseline(self.fim_instance.BASELINE_FILE)
         except Exception as e:
-            logging.error
+            logging.error(f"Error while creating Baseline file: {e}")
 
         while True:
             try:
@@ -42,69 +86,45 @@ class monitor_changes:
                 logging.error(f"Error while monitoring directories: {e}")
 
     def _monitor_directory(self, directory):
-            """Monitor files and folders for integrity changes."""
-            for root, dirs, files in os.walk(directory):
-                for folder in dirs:
-                    folder_path = os.path.join(root, folder)
-                    original_folder_hash = self.database_instance.fetch_data(folder_path)
-
-                    if original_folder_hash:
-                        current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
-                        if current_folder_hash:
-                            if folder_path in self.reported_changes["modified"]:
-                                if current_folder_hash != self.reported_changes["modified"][folder_path]:
-                                    logging.error(f"Folder modified: {folder_path}")
-                                    self.reported_changes["modified"][folder_path] = current_folder_hash
-                            else:
-                                if current_folder_hash != original_folder_hash:
-                                    logging.error(f"Folder modified: {folder_path}")
-                                    self.reported_changes["modified"][folder_path] = current_folder_hash
+        """Monitor files and folders for integrity changes."""
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                file_path = os.path.join(root, file)
+                try:
+                    self.original_file_hash = self.database_instance.fetch_data(file_path)
+                    if self.original_file_hash == None:
+                        self.current_file_hash = self.fim_instance.calculate_hash(file_path)
+                        if self.current_file_hash:
+                            self.file_folder_addition(file_path)
                         else:
-                            if original_folder_hash in self.reported_changes["deleted"][folder_path]:
-                                continue
-                            else:
-                                logging.info(f"Folder deleted: {folder_path}")
-                                self.reported_changes["deleted"][folder_path] = original_folder_hash
+                            logging.error(f"Unrecognized Error {e} for: {file_path}")
                     else:
-                        if current_folder_hash:
-                            if folder_path in self.reported_changes["added"][folder_path]:
-                                continue
-                            else:
-                                logging.warning(f"Folder added: {folder_path}")
-                                self.reported_changes["added"][folder_path] = current_folder_hash
+                        self.current_file_hash = self.fim_instance.calculate_hash(file_path)
+                        if self.current_file_hash:
+                            self.file_folder_modification(file_path)
                         else:
-                            logging.error(f"Unrecognized Error for: {folder_path}")
+                            self.file_folder_deletion(file_path)
+                except Exception as e:
+                    print(f"Error processing the file: {file_path}, Error: {e}")
 
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    original_file_hash = self.database_instance.fetch_data(file_path)
-
-                    if original_file_hash:
-                        current_file_hash = self.fim_instance.calculate_hash(file_path)
-                        if current_file_hash:
-                            if file_path in self.reported_changes["modified"]:
-                                if current_file_hash != self.reported_changes["modified"][file_path]:
-                                    logging.error(f"File modified: {file_path}")
-                                    self.reported_changes["modified"][file_path] = current_file_hash
-                            else:
-                                if current_file_hash != original_file_hash:
-                                    logging.error(f"File modified: {file_path}")
-                                    self.reported_changes["modified"][file_path] = current_file_hash
+            for folder in dirs:
+                folder_path = os.path.join(root, folder)
+                try:
+                    self.original_folder_hash = self.database_instance.fetch_data(folder_path)
+                    if self.original_folder_hash == None:
+                        self.current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
+                        if self.current_folder_hash:
+                            self.file_folder_addition(folder_path)
                         else:
-                            if original_file_hash in self.reported_changes["deleted"][file_path]:
-                                continue
-                            else:
-                                logging.info(f"File deleted: {file_path}")
-                                self.reported_changes["deleted"][file_path] = original_file_hash
+                            logging.error(f"Unrecognized Error {e} for: {folder_path}")
                     else:
-                        if current_file_hash:
-                            if file_path in self.reported_changes["added"][file_path]:
-                                continue
-                            else:
-                                logging.warning(f"File added: {file_path}")
-                                self.reported_changes["added"][file_path] = current_file_hash
+                        self.current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
+                        if self.current_folder_hash:
+                            self.file_folder_modification(folder_path)
                         else:
-                            logging.error(f"Unrecognized Error for: {file_path}")
+                            self.file_folder_deletion(folder_path)
+                except Exception as e:
+                    print(f"Error processing the folder: {folder_path}, Error: {e}")
 
     def view_baseline(self):
         """View the current baseline data."""

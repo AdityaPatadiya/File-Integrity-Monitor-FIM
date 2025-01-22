@@ -1,38 +1,5 @@
-2024-12-26 23:55:19,735 - ERROR - Missing 'type' key for key: a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a
-2024-12-26 23:55:19,735 - ERROR - Missing 'type' key for key: 47455ef0d3ca7d63e957a2c7ea94e7b598dc33c98270109496f614aa912656ea
-2024-12-26 23:55:19,735 - ERROR - Missing 'type' key for key: 0df14538c07c0f73f85c9627eb1bed3f856ac2184207a25db070a4d04ba9982a
-2024-12-26 23:55:19,735 - ERROR - Missing 'type' key for key: 734cad14909bedfafb5b273b6b0eb01fbfa639587d217f78ce9639bba41f4415
-2024-12-26 23:55:19,735 - ERROR - Missing 'type' key for key: 81826177ac14b611cab2ca97cb8bda779fcf359bfa0590253238c9da931b4f4a
-2024-12-26 23:55:20,739 - ERROR - Missing 'type' key for key: a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a
-2024-12-26 23:55:20,739 - ERROR - Missing 'type' key for key: 47455ef0d3ca7d63e957a2c7ea94e7b598dc33c98270109496f614aa912656ea
-2024-12-26 23:55:20,739 - ERROR - Missing 'type' key for key: 0df14538c07c0f73f85c9627eb1bed3f856ac2184207a25db070a4d04ba9982a
-2024-12-26 23:55:20,739 - ERROR - Missing 'type' key for key: 734cad14909bedfafb5b273b6b0eb01fbfa639587d217f78ce9639bba41f4415
-2024-12-26 23:55:20,739 - ERROR - Missing 'type' key for key: 81826177ac14b611cab2ca97cb8bda779fcf359bfa0590253238c9da931b4f4a
-2024-12-26 23:56:37,002 - ERROR - Missing 'type' key for key: 81826177ac14b611cab2ca97cb8bda779fcf359bfa0590253238c9da931b4f4a
-2024-12-26 23:56:37,002 - ERROR - Missing 'type' key for key: 47455ef0d3ca7d63e957a2c7ea94e7b598dc33c98270109496f614aa912656ea
-2024-12-26 23:56:37,002 - ERROR - Missing 'type' key for key: a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a
-2024-12-26 23:56:37,002 - ERROR - Missing 'type' key for key: 0df14538c07c0f73f85c9627eb1bed3f856ac2184207a25db070a4d04ba9982a
-2024-12-26 23:56:37,002 - ERROR - Missing 'type' key for key: 734cad14909bedfafb5b273b6b0eb01fbfa639587d217f78ce9639bba41f4415
-2024-12-26 23:56:38,013 - ERROR - Missing 'type' key for key: 81826177ac14b611cab2ca97cb8bda779fcf359bfa0590253238c9da931b4f4a
-2024-12-26 23:56:38,013 - ERROR - Missing 'type' key for key: 47455ef0d3ca7d63e957a2c7ea94e7b598dc33c98270109496f614aa912656ea
-2024-12-26 23:56:38,013 - ERROR - Missing 'type' key for key: a6ed0c785d4590bc95c216bcf514384eee6765b1c2b732d0b0a1ad7e14d3204a
-2024-12-26 23:56:38,013 - ERROR - Missing 'type' key for key: 0df14538c07c0f73f85c9627eb1bed3f856ac2184207a25db070a4d04ba9982a
-2024-12-26 23:56:38,013 - ERROR - Missing 'type' key for key: 734cad14909bedfafb5b273b6b0eb01fbfa639587d217f78ce9639bba41f4415
-2024-12-27 22:30:47,123 - ERROR - Failed to save baseline securely: Error binding parameter 2: type 'dict' is not supported
-2024-12-27 22:30:48,133 - ERROR - Failed to save baseline securely: Error binding parameter 2: type 'dict' is not supported
-2024-12-27 22:30:49,134 - ERROR - Failed to save baseline securely: Error binding parameter 2: type 'dict' is not supported
-2024-12-27 22:30:50,136 - ERROR - Failed to save baseline securely: Error binding parameter 2: type 'dict' is not supported
-2024-12-28 10:18:04,557 - ERROR - Failed to save baseline securely: Cannot operate on a closed database.
-2024-12-28 10:18:05,559 - ERROR - Failed to save baseline securely: Cannot operate on a closed database.
-2024-12-28 10:34:07,006 - INFO - Information successfuly stored in the database.
-2024-12-28 10:34:07,016 - INFO - Information successfuly stored in the database.
-2024-12-28 10:34:08,032 - INFO - Information successfuly stored in the database.
-2024-12-28 10:34:09,044 - INFO - Information successfuly stored in the database.
-2024-12-28 10:49:29,043 - ERROR - Error saving baseline: 'database_operation' object has no attribute 'current_entries'
-2024-12-28 10:49:29,058 - ERROR - Error saving baseline: 'database_operation' object has no attribute 'current_entries'
-2024-12-28 10:49:30,072 - ERROR - Error saving baseline: 'database_operation' object has no attribute 'current_entries'
-2024-12-28 10:49:31,073 - ERROR - Error saving baseline: 'database_operation' object has no attribute 'current_entries'
-2024-12-28 10:52:16,786 - INFO - Information successfuly stored in the database.
-2024-12-28 10:52:16,796 - INFO - Information successfuly stored in the database.
-2024-12-28 10:52:17,814 - INFO - Information successfuly stored in the database.
-2024-12-30 12:38:08,447 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test2.txt
+2025-01-22 19:12:06,713 - ERROR - Folder modified: E:\coding\PYTHON\FIM\test\hello
+2025-01-22 19:12:06,713 - ERROR - Folder modified: E:\coding\PYTHON\FIM\test\hello\nested_folder
+2025-01-22 19:12:06,713 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test.txt
+2025-01-22 19:12:06,713 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test2.txt
+2025-01-22 19:12:06,713 - WARNING - File added: E:\coding\PYTHON\FIM\test\hello\nested_folder\test3.txt

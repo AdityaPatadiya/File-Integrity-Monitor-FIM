@@ -41,8 +41,10 @@ class database_operation:
         try:
             self.cursor.execute('SELECT hash FROM baseline WHERE path=?', (file_path,))
             result = self.cursor.fetchone()
-            hash_values = result[0]
-            return hash_values
+            if result == None:
+                return None
+            else:
+                return result[0]
         except sqlite3.Error as e:
             logging.error(f"Error while fetching the data: {e}")
 
