@@ -1,11 +1,13 @@
 import os
 import argparse
 from FIM import monitor_changes
+from Authentication.main import Authentication
 
 
 class CLI:
     def __init__(self):
         self.monitor_changes = monitor_changes()
+        self.authentication = Authentication()
         self.exclude_files = []
 
     def main(self):
@@ -36,6 +38,8 @@ class CLI:
         if args.exclude:
             self.exclude_files.append(args.monitor[0])
         if args.monitor:
+            self.authentication.authorised_credentials()
+
             if args.dir is None:
                 print("Please specify directories.")
                 parser.print_help()

@@ -1,6 +1,6 @@
 __pycache__
 encryption_for_baseline_file
-main.py
+/main.py
 main2.py
 private_key.pem
 public_key.pem
