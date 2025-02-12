@@ -26,47 +26,73 @@ class monitor_changes:
         if os.path.isfile(_path):
             if _path not in self.reported_changes["added"]:
                 logging.warning(f"File added: {_path}")
-                self.reported_changes["added"][_path] = self.current_file_hash
+                self.reported_changes["added"][_path] = {
+                    "hash": self.current_file_hash,
+                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                }
         else:
             if _path not in self.reported_changes["added"]:
                 logging.warning(f"Folder added: {_path}")
-                self.reported_changes["added"][_path] = self.current_folder_hash
+                self.reported_changes["added"][_path] = {
+                    "hash": self.current_folder_hash,
+                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                }
 
     def file_folder_modification(self, _path):
         if os.path.isfile(_path):
             if _path in self.reported_changes["modified"]:
-                if self.current_file_hash != self.reported_changes["modified"][_path]:
+                if self.current_file_hash != self.reported_changes["modified"][_path]["hash"]:
                     logging.error(f"File modified: {_path}")
-                    self.reported_changes["modified"][_path] = self.current_file_hash
+                    self.reported_changes["modified"][_path] = {
+                        "hash": self.current_file_hash,
+                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                    }
             else:
                 if self.current_file_hash != self.original_file_hash:
                     logging.error(f"File modified: {_path}")
-                    self.reported_changes["modified"][_path] = self.current_file_hash
+                    self.reported_changes["modified"][_path] = {
+                        "hash": self.current_file_hash,
+                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                    }
         else:
             if _path in self.reported_changes["modified"]:
-                if self.current_folder_hash != self.reported_changes["modified"][_path]:
+                if self.current_folder_hash != self.reported_changes["modified"][_path]["hash"]:
                     logging.error(f"Folder modified: {_path}")
-                    self.reported_changes["modified"][_path] = self.current_folder_hash
+                    self.reported_changes["modified"][_path] = {
+                        "hash": self.current_folder_hash,
+                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                    }
             else:
                 if self.current_folder_hash != self.original_folder_hash:
                     logging.error(f"Folder modified: {_path}")
-                    self.reported_changes["modified"][_path] = self.current_folder_hash
+                    self.reported_changes["modified"][_path] = {
+                        "hash": self.current_folder_hash,
+                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                    }
 
     def file_folder_deletion(self, _path):
         if os.path.isfile(_path):
-            if self.original_file_hash not in self.reported_changes["deleted"]:
+            if _path not in self.reported_changes["deleted"]:
                 logging.info(f"File deleted: {_path}")
-                self.reported_changes["deleted"][_path] = self.original_file_hash
+                self.reported_changes["deleted"][_path] = {
+                    "hash": self.original_file_hash,
+                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path)) if os.path.exists(_path) else "N/A"
+                }
         else:
-            if self.original_folder_hash not in self.reported_changes["deleted"]:
+            if _path not in self.reported_changes["deleted"]:
                 logging.info(f"Folder deleted: {_path}")
-                self.reported_changes["deleted"][_path] = self.original_folder_hash
+                self.reported_changes["deleted"][_path] = {
+                    "hash": self.original_folder_hash,
+                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path)) if os.path.exists(_path) else "N/A"
+                }
 
     def monitor_changes(self, directories, excluded_files):
         try:
+            for directory in directories:
+                self.backup_instance.create_backup(directory)
+
             if not os.path.exists(self.fim_instance.BASELINE_FILE):
                 for directory in directories:
-                    self.backup_instance.create_backup(directory)
                     self.fim_instance.tracking_directory(directory)
                     self.fim_instance.save_baseline(self.fim_instance.current_entries)
                     self.fim_instance.load_baseline(self.fim_instance.BASELINE_FILE)
@@ -136,14 +162,12 @@ class monitor_changes:
 
     def reset_baseline(self, directories):
         """Reset the baseline file for multiple directories."""
-        print("Resetting baseline and backup_baseline for specified directories...")
 
         for directory in directories:
             if not os.path.exists(directory):
                 print(f"Directory not found: {directory}. Skipping.")
                 continue
 
-            print(f"Resetting baseline for: {directory}")
             if os.path.exists(self.fim_instance.BASELINE_FILE):
                 os.remove(self.fim_instance.BASELINE_FILE)
 
@@ -154,8 +178,6 @@ class monitor_changes:
 
             self.fim_instance.tracking_directory(directory)
             self.fim_instance.save_baseline(self.fim_instance.current_entries)
-
-        print("Baseline and backup_baseline reset complete for all valid directories.")
 
     def view_logs(self):
         """View the logs from the logging file."""

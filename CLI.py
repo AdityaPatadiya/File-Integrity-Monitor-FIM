@@ -1,6 +1,7 @@
 import os
 import argparse
 from FIM import monitor_changes
+from database import database_operation
 from Authentication.main import Authentication
 
 
@@ -8,6 +9,7 @@ class CLI:
     def __init__(self):
         self.monitor_changes = monitor_changes()
         self.authentication = Authentication()
+        self.database_operation = database_operation()
         self.exclude_files = []
 
     def main(self):
@@ -38,8 +40,6 @@ class CLI:
         if args.exclude:
             self.exclude_files.append(args.monitor[0])
         if args.monitor:
-            self.authentication.authorised_credentials()
-
             if args.dir is None:
                 print("Please specify directories.")
                 parser.print_help()
@@ -52,6 +52,10 @@ class CLI:
                 try:
                     self.monitor_changes.monitor_changes(monitored_dirs, self.exclude_files)
                 except KeyboardInterrupt:
+                    # if self.authentication.authorised_credentials():
+                    for changes in self.monitor_changes.reported_changes.items():
+                        self.database_operation.store_information(changes[1])
+                        self.monitor_changes.reset_baseline()
                     print("\n File Integrity Monitor stopped.")
 
 
