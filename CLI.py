@@ -1,6 +1,7 @@
 import os
 import argparse
-from FIM import monitor_changes
+
+from FIM.FIM import monitor_changes
 from database import database_operation
 from Authentication.Authentication import Authentication
 from anomaly_detection import parse_log_file, load_vectorizer_model

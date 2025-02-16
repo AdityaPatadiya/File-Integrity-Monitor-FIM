@@ -21,18 +21,21 @@ class Backup:
         self.backup_dir = self.normalized_path(os.path.join(self.backup_directory, f"backup_{timestamp}"))
         os.makedirs(self.backup_dir, exist_ok=True)
 
-        try:
-            for item in os.listdir(source_dir):
-                item_path = os.path.join(source_dir, item)
-                if item_path == self.backup_dir:
-                    continue
-                
-                dest_path = os.path.join(self.backup_dir, item)
-                if os.path.isdir(item_path):
-                    shutil.copytree(item_path, dest_path)
-                else:
-                    shutil.copy2(item_path, dest_path)
+        if self.backup_dir:
+            pass
+        else:
+            try:
+                for item in os.listdir(source_dir):
+                    item_path = os.path.join(source_dir, item)
+                    if item_path == self.backup_dir:
+                        continue
+                    
+                    dest_path = os.path.join(self.backup_dir, item)
+                    if os.path.isdir(item_path):
+                        shutil.copytree(item_path, dest_path)
+                    else:
+                        shutil.copy2(item_path, dest_path)
 
-            print(f"Backup created successfully at {self.backup_dir}.")
-        except Exception as e:
-            print(f"An error occurred during backup: {e}")
+                print(f"Backup created successfully at {self.backup_dir}.")
+            except Exception as e:
+                print(f"An error occurred during backup: {e}")

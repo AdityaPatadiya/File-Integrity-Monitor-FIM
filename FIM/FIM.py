@@ -2,9 +2,10 @@ import os
 import time
 import json
 import logging
+
 from backup import Backup
 from database import database_operation
-from fim_utils import FIM_monitor
+from FIM.fim_utils import FIM_monitor
 
 
 class monitor_changes:

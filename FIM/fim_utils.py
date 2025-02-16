@@ -3,6 +3,7 @@ import json
 import time
 import hashlib
 import logging
+
 from pathlib import Path
 from database import database_operation
 
@@ -16,7 +17,7 @@ class FIM_monitor:
         self.database_instance = database_operation()
 
         logging.basicConfig(
-            filename="FIM_Logging.log",
+            filename="../logs/FIM_Logging.log",
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s"
         )
