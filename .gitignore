@@ -7,3 +7,6 @@ public_key.pem
 baseline.key
 baseline.json.sig
 FIM_Access_Token
+FIM.db
+Authentication.db
+log_anomalies.csv
