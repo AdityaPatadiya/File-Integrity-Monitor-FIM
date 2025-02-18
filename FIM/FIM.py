@@ -6,6 +6,7 @@ import logging
 from backup import Backup
 from database import database_operation
 from FIM.fim_utils import FIM_monitor
+import logging_config
 
 
 class monitor_changes:
@@ -182,8 +183,9 @@ class monitor_changes:
 
     def view_logs(self):
         """View the logs from the logging file."""
-        if os.path.exists("FIM_Logging.log"):
-                with open("FIM_Logging.log", "r") as log_file:
+        log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../logs/FIM_Logging.log"))
+        if os.path.exists(log_file_path):
+                with open(log_file_path, "r") as log_file:
                     print(log_file.read())
         else:
             print("Log file not found.")

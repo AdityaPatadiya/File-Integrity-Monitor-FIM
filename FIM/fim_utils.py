@@ -6,21 +6,16 @@ import logging
 
 from pathlib import Path
 from database import database_operation
+import logging_config
 
 
 class FIM_monitor:
     def __init__(self):
-        self.BASELINE_FILE = "baseline.json"
+        self.BASELINE_FILE = "../baseline.json"
         self.POLL_INTERVAL = 3
         self.current_entries = {}
         self.baseline_fle_path = os.path.abspath(self.BASELINE_FILE)
         self.database_instance = database_operation()
-
-        logging.basicConfig(
-            filename="../logs/FIM_Logging.log",
-            level=logging.INFO,
-            format="%(asctime)s - %(levelname)s - %(message)s"
-        )
         self.database_instance.database_table_creation()
 
     def get_formatted_time(self, timestamp):
@@ -28,6 +23,7 @@ class FIM_monitor:
         return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
     def tracking_directory(self, directory):
+        """Traking the monitored directories to create baseline.json file."""
         for root, dirs, files in os.walk(directory):
             for folder in dirs:
                 folder_path = os.path.join(root, folder)  # here root used to track of the current folder.

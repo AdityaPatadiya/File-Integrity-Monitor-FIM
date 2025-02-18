@@ -1,56 +1,56 @@
 {
-    "E:\\coding\\PYTHON\\FIM\\test\\hello": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello": {
         "type": "folder",
         "hash": "f929818d18110236009c09d81d3d9dec326a5cf3f2a570654910e105eecb499e",
         "last_modified": "2024-12-22 00:09:04"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\test.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\test.txt": {
         "type": "file",
         "hash": "0df14538c07c0f73f85c9627eb1bed3f856ac2184207a25db070a4d04ba9982a",
         "size": 3,
         "last_modified": "2024-12-22 00:09:04"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\text2.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\text2.txt": {
         "type": "file",
         "hash": "47455ef0d3ca7d63e957a2c7ea94e7b598dc33c98270109496f614aa912656ea",
         "size": 362,
         "last_modified": "2024-12-22 00:09:04"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\hello\\nested_folder": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello\\nested_folder": {
         "type": "folder",
         "hash": "22d758930ceb3c05df984ec4508d7a340f8afd96d1a4c0640b26e78a16dba423",
         "last_modified": "2025-01-22 12:43:02"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\hello\\hello.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello\\hello.txt": {
         "type": "file",
         "hash": "734cad14909bedfafb5b273b6b0eb01fbfa639587d217f78ce9639bba41f4415",
         "size": 0,
         "last_modified": "2025-01-22 12:43:02"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\hello\\nested_folder\\test.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello\\nested_folder\\test.txt": {
         "type": "file",
         "hash": "371144ecfa4a9b775c4c3eb40edeec02fe105969e5d02974f6b3290a5fd7254e",
         "size": 16,
         "last_modified": "2025-01-22 12:43:02"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\hello\\nested_folder\\test2.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello\\nested_folder\\test2.txt": {
         "type": "file",
         "hash": "6a452e0188b0c574b5068f49b7d01c1e4399c667767506d76bb3ba6ca865cdd7",
         "size": 43,
         "last_modified": "2025-01-22 12:43:02"
     },
-    "E:\\coding\\PYTHON\\FIM\\test\\hello\\nested_folder\\test3.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_1\\hello\\nested_folder\\test3.txt": {
         "type": "file",
         "hash": "f32db89bb439040c3733bfa476fe73fd9f4b9d074b6d394c7a89e9955026659f",
         "size": 22,
         "last_modified": "2025-01-22 12:43:02"
     },
-    "E:\\coding\\PYTHON\\FIM\\test2\\folder_1": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_2\\folder_1": {
         "type": "folder",
         "hash": "a3d8f430d9babfc7d1b06edf408ed90be646cbbd767464c6fa6f6842819fe0d5",
         "last_modified": "2025-01-06 22:24:47"
     },
-    "E:\\coding\\PYTHON\\FIM\\test2\\folder_1\\text.txt": {
+    "E:\\coding\\PYTHON\\FIM\\dummy_folder_2\\folder_1\\text.txt": {
         "type": "file",
         "hash": "e5a9a62e00131280d567c99a5d3a0d8fd6a88dbe0188bac1d23e6210e5bb23ed",
         "size": 0,
