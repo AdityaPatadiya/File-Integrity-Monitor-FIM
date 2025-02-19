@@ -1,4 +1,4 @@
-# File Integrity Monitor (FIM)
+# TrustVault
 
 The File Integrity Monitor (FIM) is a CLI tool designed to monitor directories for changes, view and reset baseline data, view logs, and analyze log files for anomalies. It includes user authentication to ensure that only authorized users can access and use the tool. Additionally, it takes a backup of the monitored directories before starting the monitoring process.
 
