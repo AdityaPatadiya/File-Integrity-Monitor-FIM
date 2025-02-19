@@ -2,13 +2,13 @@ import os
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import IsolationForest
-from log_parser import parse_log_file
+from src.utils.log_parser import parse_log_file
 
-MODEL_PATH = "anomaly_model.pkl"
-VECTORIZER_PATH = "vectorizer.pkl"
+MODEL_PATH = r"data\models\anomaly_model.pkl"
+VECTORIZER_PATH = r"data\models\vectorizer.pkl"
 
 def train_anomaly_model():
-    log_file_path = 'FIM_Logging.log'
+    log_file_path = r'logs\FIM_Logging.log'
     log_df = parse_log_file(log_file_path)
 
     if log_df.empty:

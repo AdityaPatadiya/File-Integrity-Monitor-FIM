@@ -34,3 +34,43 @@
 2025-02-12 14:47:01,173 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test3.txt
 2025-02-12 14:54:11,648 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test3.txt
 2025-02-12 14:56:42,087 - ERROR - File modified: E:\coding\PYTHON\FIM\test\hello\nested_folder\test3.txt
+2025-02-19 10:01:42,731 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:42,731 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:42,738 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:01:42,738 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\text2.txt
+2025-02-19 10:01:42,739 - WARNING - Folder added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello
+2025-02-19 10:01:42,739 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello\hello.txt
+2025-02-19 10:01:42,742 - WARNING - Folder added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello\nested_folder
+2025-02-19 10:01:42,742 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello\nested_folder\test.txt
+2025-02-19 10:01:42,743 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello\nested_folder\test2.txt
+2025-02-19 10:01:42,743 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_1\hello\nested_folder\test3.txt
+2025-02-19 10:01:42,743 - WARNING - Folder added: E:\coding\PYTHON\FIM\test\dummy_folder_2\folder_1
+2025-02-19 10:01:42,746 - WARNING - File added: E:\coding\PYTHON\FIM\test\dummy_folder_2\folder_1\text.txt
+2025-02-19 10:01:45,935 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:45,935 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:45,951 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:45,951 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:45,951 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:01:45,951 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:02:54,959 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:02:54,961 - ERROR - Error saving baseline: [Errno 2] No such file or directory: '../../data/baselines/baseline.json'
+2025-02-19 10:07:09,326 - ERROR - File modified: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:07:18,344 - ERROR - File modified: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:07:21,351 - ERROR - File modified: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:12:04,434 - ERROR - File modified: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:12:11,015 - ERROR - Error storing information in the database: database is locked
+2025-02-19 10:19:39,080 - ERROR - File modified: E:\coding\PYTHON\FIM\test\dummy_folder_1\test.txt
+2025-02-19 10:19:41,035 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,035 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,039 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,047 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,047 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,058 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:19:41,063 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,667 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,670 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,675 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,680 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,682 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,691 - ERROR - Error storing information in the database: Cannot operate on a closed database.
+2025-02-19 10:21:44,696 - ERROR - Error storing information in the database: Cannot operate on a closed database.

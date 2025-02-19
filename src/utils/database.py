@@ -1,16 +1,12 @@
 import sqlite3
 import logging
 
+import config.logging_config as logging_config
+
 class database_operation:
     def __init__(self):
-        self.conn = sqlite3.connect('FIM.db')
+        self.conn = sqlite3.connect(r'db\FIM.db', check_same_thread=False)
         self.cursor = self.conn.cursor()
-
-        logging.basicConfig(
-            filename="FIM_Logging.log",
-            level=logging.INFO,
-            format="%(asctime)s - %(levelname)s - %(message)s"
-        )
 
     def database_table_creation(self):
         try:
@@ -27,6 +23,7 @@ class database_operation:
 
     def store_information(self, baseline_data):
         try:
+            self.conn.execute("PRAGMA busy_timeout = 5000")
             for entry_path, entry_data in baseline_data.items():
                 if entry_data:
                     file_hash = entry_data.get("hash", "")

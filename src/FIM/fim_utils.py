@@ -5,13 +5,13 @@ import hashlib
 import logging
 
 from pathlib import Path
-from database import database_operation
-import logging_config
+from src.utils.database import database_operation
+import config.logging_config as logging_config
 
 
 class FIM_monitor:
     def __init__(self):
-        self.BASELINE_FILE = "../baseline.json"
+        self.BASELINE_FILE = r"data\baselines\baseline.json"
         self.POLL_INTERVAL = 3
         self.current_entries = {}
         self.baseline_fle_path = os.path.abspath(self.BASELINE_FILE)

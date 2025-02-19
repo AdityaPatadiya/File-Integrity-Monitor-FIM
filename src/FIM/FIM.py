@@ -3,10 +3,10 @@ import time
 import json
 import logging
 
-from backup import Backup
-from database import database_operation
-from FIM.fim_utils import FIM_monitor
-import logging_config
+from src.utils.backup import Backup
+from src.utils.database import database_operation
+from src.FIM.fim_utils import FIM_monitor
+import config.logging_config as logging_config
 
 
 class monitor_changes:

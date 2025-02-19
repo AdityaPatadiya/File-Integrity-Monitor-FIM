@@ -1,10 +1,10 @@
 import os
 import argparse
 
-from FIM.FIM import monitor_changes
-from database import database_operation
-from Authentication.Authentication import Authentication
-from anomaly_detection import parse_log_file, load_vectorizer_model
+from src.FIM.FIM import monitor_changes
+from src.utils.database import database_operation
+from src.Authentication.Authentication import Authentication
+from src.utils.anomaly_detection import parse_log_file, load_vectorizer_model
 
 
 class CLI:
