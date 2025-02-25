@@ -29,21 +29,24 @@ class CLI:
             monitored_dirs = [os.path.abspath(dir) for dir in args.dir]
 
         if args.analyze_logs:
-            log_df = parse_log_file('FIM_Logging.log')
-            if log_df.empty:
-                print("No log data found.")
-            else:
-                vectorizer, model = load_vectorizer_model()
-                if vectorizer is None or model is None:
-                    print("Model not trained. Run anomaly_detection.py first.")
-                    return
+            log_folder_path = 'logs'
+            for file in os.listdir(log_folder_path):
+                file_path = os.path.join(log_folder_path, file)
+                log_df = parse_log_file(file_path)
+                if log_df.empty:
+                    print("No log data found.")
+                else:
+                    vectorizer, model = load_vectorizer_model()
+                    if vectorizer is None or model is None:
+                        print("Model not trained. Run anomaly_detection.py first.")
+                        return
 
-                X = vectorizer.transform(log_df['message'])
-                log_df['anomaly'] = model.predict(X)
-                log_df['anomaly'] = log_df['anomaly'].apply(lambda x: 'anomaly' if x == -1 else 'normal')
-                log_df.to_csv('log_anomalies.csv', index=False)
-                print("Anomalies saved to log_anomalies.csv")
-                print(log_df.head())
+                    X = vectorizer.transform(log_df['message'])
+                    log_df['anomaly'] = model.predict(X)
+                    log_df['anomaly'] = log_df['anomaly'].apply(lambda x: 'anomaly' if x == -1 else 'normal')
+                    log_df.to_csv('log_anomalies.csv', index=False)
+                    print("Anomalies saved to log_anomalies.csv")
+                    print(log_df.head())
 
         if args.view_baseline:
             self.monitor_changes.view_baseline()

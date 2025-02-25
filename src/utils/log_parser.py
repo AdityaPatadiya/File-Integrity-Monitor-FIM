@@ -1,3 +1,4 @@
+import os
 import re
 import pandas as pd
 
@@ -22,6 +23,8 @@ def parse_log_file(log_file_path):
 
 # Test
 if __name__ == "__main__":
-    log_file_path = 'FIM_Logging.log'
-    log_df = parse_log_file(log_file_path)
-    print(log_df.head() if not log_df.empty else "No logs found.")
+    log_folder_path = 'logs'
+    for file in os.listdir(log_folder_path):
+        file_path = os.path.join(log_folder_path, file)
+        log_df = parse_log_file(file_path)
+        print(log_df.head() if not log_df.empty else "No logs found.")
