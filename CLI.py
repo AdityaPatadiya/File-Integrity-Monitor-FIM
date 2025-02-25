@@ -77,10 +77,13 @@ class CLI:
                 try:
                     self.monitor_changes.monitor_changes(monitored_dirs, self.exclude_files)
                 except KeyboardInterrupt:
+                    cli.authentication.authorised_credentials()
                     for changes in self.monitor_changes.reported_changes.items():
                         self.database_operation.store_information(changes[1])
-                        self.monitor_changes.reset_baseline(monitored_dirs)
+                    self.monitor_changes.reset_baseline(monitored_dirs)
                     print("\n File Integrity Monitor stopped.")
+                except Exception as e:
+                    print(f"Error starting monitor: {e}")
 
 
 if __name__ == "__main__":
