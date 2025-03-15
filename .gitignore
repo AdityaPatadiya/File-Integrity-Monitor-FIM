@@ -10,3 +10,7 @@ FIM_Access_Token
 FIM.db
 Authentication.db
 log_anomalies.csv
+Project_Flow.md
+FIM.db-shm
+FIM.db-wal
+data/models

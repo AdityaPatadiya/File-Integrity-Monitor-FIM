@@ -2,7 +2,6 @@ import os
 import argparse
 
 from src.FIM.FIM import monitor_changes
-from src.utils.database import database_operation
 from src.Authentication.Authentication import Authentication
 from src.utils.anomaly_detection import parse_log_file, load_vectorizer_model
 
@@ -11,7 +10,6 @@ class CLI:
     def __init__(self):
         self.monitor_changes = monitor_changes()
         self.authentication = Authentication()
-        self.database_operation = database_operation()
         self.exclude_files = []
 
     def main(self):
@@ -72,21 +70,21 @@ class CLI:
                 print("Please specify directories.")
                 parser.print_help()
             else:
+                valid_dirs = []
                 for directory in monitored_dirs:
-                    if not os.path.exists:
-                        print(f"Creating the directory: {directory}")
-                        os.mkdir(directory)
-                print("Starting the Integrity Monitor.")
+                    if not os.path.exists(directory):
+                        print(f"Creating directory: {directory}")
+                        os.makedirs(directory, exist_ok=True)
+                    valid_dirs.append(os.path.abspath(directory))
+                print(f"valid_dirs: {valid_dirs}\n")
+
+                print("Starting the Integrity Monitor. Use Ctrl+C to exit")
                 try:
-                    self.monitor_changes.monitor_changes(monitored_dirs, self.exclude_files)
+                    print("monitor argument try block called.")
+                    self.monitor_changes.monitor_changes(valid_dirs, self.exclude_files)
                 except KeyboardInterrupt:
-                    cli.authentication.authorised_credentials()
-                    for changes in self.monitor_changes.reported_changes.items():
-                        self.database_operation.store_information(changes[1])
-                    self.monitor_changes.reset_baseline(monitored_dirs)
-                    print("\n File Integrity Monitor stopped.")
-                except Exception as e:
-                    print(f"Error starting monitor: {e}")
+                    print("\nMonitoring stopped. Cleaning up...")
+                    raise SystemExit  # Force exit after monitor_changes handles cleanup
 
 
 if __name__ == "__main__":

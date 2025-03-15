@@ -6,7 +6,6 @@ from datetime import datetime
 class Backup:
     def __init__(self):
         self.backup_directory = "E:/coding/PYTHON/FIM_Backup/"
-        self.backup_dir = None
 
     def normalized_path(self, path):
         return os.path.normpath(path)
@@ -17,25 +16,21 @@ class Backup:
             print(f"Source directory {source_dir} does not exist.")
             return
 
+        dir_name = os.path.basename(os.path.normpath(source_dir))
         timestamp = datetime.now().strftime(r"%Y%m%d_%H%M")
-        self.backup_dir = self.normalized_path(os.path.join(self.backup_directory, f"backup_{timestamp}"))
-        os.makedirs(self.backup_dir, exist_ok=True)
+        backup_dir = os.path.join(
+            self.backup_directory, 
+            f"backup_{dir_name}_{timestamp}"
+        )
 
-        
         try:
-            for item in os.listdir(source_dir):
-                item_path = os.path.join(source_dir, item)
-                if item_path == self.backup_dir:
-                    continue
-                
-                dest_path = os.path.join(self.backup_dir, item)
-                if os.path.isdir(item_path):
-                    shutil.copytree(item_path, dest_path)
-                else:
-                    shutil.copy2(item_path, dest_path)
+            # Clear existing backup if it exists
+            if os.path.exists(backup_dir):
+                shutil.rmtree(backup_dir)
+                print("existing backup cleared.\n")
 
-            print(f"Backup created successfully at {self.backup_dir}.")
-        except FileExistsError:
-            print(f"{self.backup_dir} is already exist. for updated backup, please run the FIM again after a minute.")
+            shutil.copytree(source_dir, backup_dir, 
+                          ignore=shutil.ignore_patterns('.*'))
+            print(f"Backup created for {dir_name} at {backup_dir}")
         except Exception as e:
-            print(f"An error occurred during backup: {e}")
+            print(f"Backup failed for {source_dir}: {str(e)}")

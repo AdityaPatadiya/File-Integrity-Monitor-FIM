@@ -2,6 +2,7 @@ import getpass
 import sqlite3
 import hashlib
 
+
 class Authentication:
     def __init__(self):
         self.conn = sqlite3.connect(r'db\Authentication.db')

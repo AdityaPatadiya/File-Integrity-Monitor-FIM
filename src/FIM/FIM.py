@@ -1,13 +1,102 @@
 import os
 import time
 import json
-import logging
-
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from src.utils.backup import Backup
 from src.utils.database import database_operation
 from src.FIM.fim_utils import FIM_monitor
 from config.logging_config import configure_logger
 
+
+class FIMEventHandler(FileSystemEventHandler):
+    def __init__(self, parent, logger):
+        super().__init__()
+        self.parent: monitor_changes = parent
+        self.logger = logger
+        self.directory_path = None
+        print("FIMEventHandler class initialized.\n")
+
+    def _get_directory_path(self, event_path):
+        """Extract monitored directory path from event path"""
+        for dir_path in self.parent.current_directories:
+            if event_path.startswith(dir_path):
+                return dir_path
+        return os.path.dirname(event_path)
+
+    def on_created(self, event):
+        try:
+            dir_path = self._get_directory_path(event.src_path)
+            last_modified = self.parent.fim_instance.get_formatted_time(os.path.getmtime(event.src_path))
+
+            if not event.is_directory:
+                file_hash = self.parent.fim_instance.calculate_hash(event.src_path)
+                self.parent.database_instance.record_file_event(
+                    directory_path=dir_path,
+                    file_path=event.src_path,
+                    file_hash=file_hash,
+                    last_modified=last_modified,
+                    status='added'
+                )
+            else:
+                folder_hash = self.parent.fim_instance.calculate_folder_hash(event.src_path)
+                self.parent.database_instance.record_file_event(
+                    directory_path=dir_path,
+                    file_path=event.src_path,
+                    file_hash=folder_hash,
+                    last_modified=last_modified,
+                    status='added'
+                )
+
+            self.parent.file_folder_addition(event.src_path)
+
+        except Exception as e:
+            self.logger.error(f"Creation error: {str(e)}")
+
+    def on_modified(self, event):
+        try:
+            if event.is_directory:
+                return
+
+            dir_path = self._get_directory_path(event.src_path)
+            last_modified = self.parent.fim_instance.get_formatted_time(os.path.getmtime(event.src_path))
+            current_hash = self.parent.fim_instance.calculate_hash(event.src_path)
+
+            original_hash = self.parent.database_instance.get_current_baseline(dir_path).get(event.src_path, {}).get('hash', '')
+
+            if original_hash != current_hash:
+                self.parent.database_instance.record_file_event(
+                    directory_path=dir_path,
+                    file_path=event.src_path,
+                    file_hash=current_hash,
+                    last_modified=last_modified,
+                    status='modified'
+                )
+                self.parent.file_folder_modification(event.src_path)
+
+        except Exception as e:
+            self.logger.error(f"Modification error: {str(e)}")
+
+    def on_deleted(self, event):
+        try:
+            dir_path = self._get_directory_path(event.src_path)
+
+            if not event.is_directory:
+                baseline = self.parent.database_instance.get_current_baseline(dir_path)
+                file_hash = baseline.get(event.src_path, {}).get('hash', '')
+                last_modified = baseline.get(event.src_path, {}).get('last_modified', '')
+
+                self.parent.database_instance.record_file_event(
+                    directory_path=dir_path,
+                    file_path=event.src_path,
+                    file_hash=file_hash,
+                    last_modified=last_modified,
+                    status='deleted'
+                )
+            self.parent.file_folder_deletion(event.src_path)
+
+        except Exception as e:
+            self.logger.error(f"Deletion error: {str(e)}")
 
 class monitor_changes:
     def __init__(self):
@@ -20,11 +109,14 @@ class monitor_changes:
         self.fim_instance = FIM_monitor()
         self.database_instance = database_operation()
         self.configre_logger = configure_logger()
+        self.observer = Observer()
         self.current_file_hash = ""
         self.original_file_hash = ""
         self.current_folder_hash = ""
         self.original_folder_hash = ""
         self.current_logger = None
+        self.current_directories = []
+        self.event_handlers = []
 
     def file_folder_addition(self, _path):
         if os.path.isfile(_path):
@@ -91,98 +183,104 @@ class monitor_changes:
                 }
 
     def monitor_changes(self, directories, excluded_files):
+        """Monitor specified directories for changes using Watchdog."""
         try:
-            for directory in directories:
-                self.backup_instance.create_backup(directory)
+            self.current_directories = directories
+            print(f"current_directories: {directories}\n")
 
-            if not os.path.exists(self.fim_instance.BASELINE_FILE):
-                for directory in directories:
-                    self.fim_instance.tracking_directory(directory)
-                    self.fim_instance.save_baseline(self.fim_instance.current_entries)
-                    self.fim_instance.load_baseline(self.fim_instance.BASELINE_FILE)
-        except Exception as e:
-            self.current_logger.error(f"Error while creating Baseline file: {e}")
+            for directory in self.current_directories:
+                print(f"directory: {directory}.\n")
+                if not os.path.exists(directory):
+                    raise FileNotFoundError(f"Directory {directory} does not exist")
+                print(f"Creating backup for {directory}")
+                try:
+                    self.backup_instance.create_backup(directory)
+                except Exception as e:
+                    print(f"Failed to create backup for {directory}")
+                    continue
 
-        while True:
+                baseline = self.fim_instance.tracking_directory(directory)
+                print(f"baseline: {baseline}\n")
+                for path, data in baseline.items():
+                    self.database_instance.record_file_event(
+                        directory_path=directory,
+                        file_path=path,
+                        file_hash=data['hash'],
+                        last_modified=data['last_modified'],
+                        status='current'
+                    )
+
+            for directory in self.current_directories:
+                if directory in excluded_files:
+                    print(f"Directory {directory} excluded.")
+                    continue
+
+                logger = self.configre_logger._get_or_create_logger(directory)
+                logger.info(f"Starting monitoring for {directory}")
+
+                event_handler = FIMEventHandler(self, logger)
+                event_handler.directory_path = directory
+                self.observer.schedule(event_handler, directory, recursive=True)
+                self.event_handlers.append(event_handler)
+                print(f"self.event_handlers: {self.event_handlers}\n")
+
+            self.observer.start()
             try:
-                for directory in directories:
-                    if directory in excluded_files:
-                        print(f"Directory {directory} excluded.")
-                        continue
-                    else:
-                        self._monitor_directory(directory)
-                time.sleep(self.fim_instance.POLL_INTERVAL)
-            except Exception as e:
-                self.current_logger.error(f"Error while monitoring directories: {e}")
+                while True:
+                    time.sleep(1)  # Main thread sleep
+                    print("while loop of monitor_changes called.\n")
+            except KeyboardInterrupt:
+                print("\nShutdown down...")
+                self.observer.stop()
+                self.observer.join()
+                self.configre_logger.shutdown()
+                self.database_instance.close_connection()
+                print("Shutdown complete.")
+        except Exception as e:
+            if self.current_logger:
+                self.current_logger.error(f"Monitoring error: {e}")
+            else:
+                print(f"Critical error: {e}")
+                self.observer.stop()
+                self.observer.join()  # Ensure observer is stopped even on error
+                self.configre_logger.shutdown()
+                self.database_instance.close_connection()
 
-    def _monitor_directory(self, directory):
-        """Monitor files and folders for integrity changes."""
-        self.current_logger = self.configre_logger._get_or_create_logger(directory)
-        for root, dirs, files in os.walk(directory):
-            for file in files:
-                file_path = os.path.join(root, file)
-                try:
-                    self.original_file_hash = self.database_instance.fetch_data(file_path)
-                    if self.original_file_hash == None:
-                        self.current_file_hash = self.fim_instance.calculate_hash(file_path)
-                        if self.current_file_hash:
-                            self.file_folder_addition(file_path)
-                        else:
-                            self.current_logger.error(f"Unrecognized Error {e} for: {file_path}")
-                    else:
-                        self.current_file_hash = self.fim_instance.calculate_hash(file_path)
-                        if self.current_file_hash:
-                            self.file_folder_modification(file_path)
-                        else:
-                            self.file_folder_deletion(file_path)
-                except Exception as e:
-                    self.current_logger.error(f"Error processing the file: {file_path}, Error: {e}")
-
-            for folder in dirs:
-                folder_path = os.path.join(root, folder)
-                try:
-                    self.original_folder_hash = self.database_instance.fetch_data(folder_path)
-                    if self.original_folder_hash == None:
-                        self.current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
-                        if self.current_folder_hash:
-                            self.file_folder_addition(folder_path)
-                        else:
-                            self.current_logger.error(f"Unrecognized Error {e} for: {folder_path}")
-                    else:
-                        self.current_folder_hash = self.fim_instance.calculate_folder_hash(folder_path)
-                        if self.current_folder_hash:
-                            self.file_folder_modification(folder_path)
-                        else:
-                            self.file_folder_deletion(folder_path)
-                except Exception as e:
-                    self.current_logger.error(f"Error processing the folder: {folder_path}, Error: {e}")
+    def _save_reported_changes(self):
+        print("_save_reported_changes called.\n")
+        for change_type, changes in self.reported_changes.items():
+            for path, data in changes.items():
+                directory = os.path.dirname(path)
+                self.database_instance.record_file_event(
+                    directory_path=directory,
+                    file_path=path,
+                    file_hash=data['hash'],
+                    last_modified=data['last_modified'],
+                    status=change_type
+                )
 
     def view_baseline(self):
-        """View the current baseline data."""
-        if os.path.exists(self.fim_instance.BASELINE_FILE):
-            with open(self.fim_instance.BASELINE_FILE, "r") as f:
-                print(json.dumps(json.load(f), indent=4))
-        else:
-            print("Baseline file not found.")
+        """View current baseline from database"""
+        if not self.current_directories:
+            print("No directories being monitored")
+            return
+
+        for directory in self.current_directories:
+            print(f"\nBaseline for {directory}:")
+            baseline = self.database_instance.get_current_baseline(directory)
+            print(json.dumps(baseline, indent=4))
 
     def reset_baseline(self, directories):
-        """Reset the baseline file for multiple directories."""
-
+        """Reset baseline in database"""
         for directory in directories:
             if not os.path.exists(directory):
                 print(f"Directory not found: {directory}. Skipping.")
                 continue
 
-            if os.path.exists(self.fim_instance.BASELINE_FILE):
-                os.remove(self.fim_instance.BASELINE_FILE)
-
-            self.backup_instance.create_backup(directory)
-            if not self.backup_instance.backup_dir:
-                print(f"Backup directory not initialized for {directory}. Skipping.")
-                continue
-
+            self.database_instance.delete_directory_records(directory)
             self.fim_instance.tracking_directory(directory)
-            self.fim_instance.save_baseline(self.fim_instance.current_entries)
+
+            print(f"Reset baseline for {directory}")
 
     def view_logs(self, directory=None):
         """View logs for a specific directory or all directories."""
@@ -198,7 +296,6 @@ class monitor_changes:
                 print(f"No logs found for {directory}.")
         else:
             log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../logs"))
-            print(log_dir)
             for log_file in os.listdir(log_dir):
                 if log_file.startswith("FIM_Logging_") and log_file.endswith(".log"):
                     print(f"=== Logs for {log_file} ===")
