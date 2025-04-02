@@ -5,7 +5,7 @@ import hashlib
 
 class Authentication:
     def __init__(self):
-        self.conn = sqlite3.connect(r'db\Authentication.db')
+        self.conn = sqlite3.connect(r'db/Authentication.db')
         self.cursor = self.conn.cursor()
         self.create_user_table()
 

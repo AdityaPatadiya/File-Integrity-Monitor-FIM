@@ -2,3 +2,4 @@ watchdog
 joblib
 scikit-learn
 pandas
+sqlite3
