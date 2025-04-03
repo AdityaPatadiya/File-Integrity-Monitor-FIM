@@ -4,7 +4,7 @@ The File Integrity Monitor (FIM) is a CLI tool designed to monitor directories f
 
 ## Features
 
-- **Monitor Directories**: Start monitoring multiple directories for changes.
+- **Monitor Directories**: Start monitoring single or multiple directories for changes.
 - **View Baseline Data**: View the current baseline data.
 - **Reset Baseline Data**: Reset the baseline data for specified directories.
 - **View Logs**: View the log file.
