@@ -25,7 +25,6 @@ class FIM_monitor:
         Track the monitored directory and store baseline in the database.
         Returns a dictionary of file/folder metadata.
         """
-        print("tracking_direcoties method called.\n")
         self.current_entries = {}
 
         for root, dirs, files in os.walk(directory):
@@ -80,7 +79,6 @@ class FIM_monitor:
 
     def calculate_hash(self, file_path: str) -> Optional[str]:
         """Calculate the SHA-256 hash of a file."""
-        print("File hash calculated.\n")
         sha256 = hashlib.sha256()
         try:
             with open(file_path, "rb") as f:
@@ -94,7 +92,6 @@ class FIM_monitor:
 
     def calculate_folder_hash(self, folder_path: str) -> str:
         """Calculate the SHA-256 hash of a folder."""
-        print("Folder hash calculated.\n")
         sha256 = hashlib.sha256()
         folder = Path(folder_path)
         sha256.update(folder.name.encode())

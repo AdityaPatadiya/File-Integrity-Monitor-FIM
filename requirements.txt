@@ -2,4 +2,5 @@ watchdog
 joblib
 scikit-learn
 pandas
-sqlite3
+mysql-connector-python
+python-dotenv

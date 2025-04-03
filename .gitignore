@@ -15,3 +15,5 @@ FIM.db-shm
 FIM.db-wal
 data/models
 venv
+.env
+logs

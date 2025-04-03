@@ -1,11 +1,14 @@
-import sqlite3
+import mysql.connector
+from mysql.connector import pooling, Error as MySQLerror
 import logging
-import threading
+import os
 from contextlib import contextmanager
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List, Tuple
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Configure logging
+load_dotenv()
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -13,114 +16,146 @@ logging.basicConfig(
 
 
 class database_operation:
-    def __init__(self):
-        self.db_path = Path('db/FIM.db')
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self._thread_local = threading.local()
-        self.lock = threading.Lock()  # For thread safety
-        self._initialize_schema()
+    _instance = None
+    _pool = None
 
-    def _get_connection(self):
-        """Get or create a thread-local database connection."""
-        if not hasattr(self._thread_local, 'conn'):
-            self._thread_local.conn = sqlite3.connect(self.db_path, check_same_thread=False)
-            self._thread_local.conn.execute('PRAGMA journal_mode=WAL')
-            self._thread_local.conn.execute('PRAGMA synchronous=NORMAL')
-        return self._thread_local.conn
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialize_pool()
+            cls._instance._initialize_schema()
+        return cls._instance
+
+    def _initialize_pool(self):
+        """Initialize MySQL connection pool with environment variables"""
+        try:
+            self._pool = pooling.MySQLConnectionPool(
+                pool_name="fim_pool",
+                pool_size=int(os.getenv('DB_POOL_SIZE', '32')),
+                host=os.getenv('DB_HOST'),
+                database=os.getenv('DB_NAME'),
+                user=os.getenv('DB_USER'),
+                password=os.getenv('DB_PASSWORD'),
+                autocommit=False,
+                sql_mode='TRADITIONAL',
+                charset='utf8mb4',
+                collation='utf8mb4_bin',
+            )
+            # Test connection
+            test_conn = self._pool.get_connection()
+            try:
+                cursor = test_conn.cursor()
+                cursor.execute("SELECT 1")
+                cursor.fetchall()  # Consume results
+            finally:
+                cursor.close()
+                test_conn.close()
+
+        except MySQLerror as e:
+            logging.error(f"Database connection failed: {e}")
+            raise
 
     def _initialize_schema(self):
-        """Initialize database schema with proper normalization"""
-        print("database initialized.\n")
-        with self.transaction():
-            print("_initialize_schema with loop is called.\n")
-            self._get_connection().cursor().execute('''
-                CREATE TABLE IF NOT EXISTS directories (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    path TEXT UNIQUE NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            print("cursor is executed.\n")
-            self._get_connection().cursor().execute('''
-                CREATE TABLE IF NOT EXISTS file_metadata (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    directory_id INTEGER NOT NULL,
-                    file_path TEXT NOT NULL,
-                    hash TEXT NOT NULL,
-                    last_modified TEXT NOT NULL,
-                    status TEXT CHECK(status IN ('added', 'modified', 'deleted', 'current')),
-                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(directory_id) REFERENCES directories(id),
-                    UNIQUE(directory_id, file_path)
-                )
-            ''')
-
-            # Create indexes for faster queries
-            self._get_connection().cursor().execute('''
-                CREATE INDEX IF NOT EXISTS idx_file_path 
-                ON file_metadata(file_path)
-            ''')
-            
-            self._get_connection().cursor().execute('''
-                CREATE INDEX IF NOT EXISTS idx_status 
-                ON file_metadata(status)
-            ''')
-
-    @contextmanager
-    def transaction(self):
-        print("TRANSACTION STARTED")
-        conn = self._get_connection()
+        """Initialize database schema with proper error handling"""
+        conn = self._pool.get_connection()
         cursor = conn.cursor()
         try:
-            with self.lock:
-                print("LOCK ACQUIRED")
-                yield cursor
-                conn.commit()
-                print("TRANSACTION COMMITTED")
-        except Exception as e:
-            print(f"TRANSACTION ERROR: {e}")
+            # Create tables
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS directories (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    path VARCHAR(512) UNIQUE NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+            ''')
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS file_metadata (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    directory_id INT NOT NULL,
+                    file_path VARCHAR(512) NOT NULL,
+                    hash VARCHAR(64) NOT NULL,
+                    last_modified DATETIME NOT NULL,
+                    status ENUM('added', 'modified', 'deleted', 'current') NOT NULL,
+                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (directory_id) REFERENCES directories(id),
+                    UNIQUE KEY (directory_id, file_path(255))
+                ) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+            ''')
+
+            # Create indexes with error handling
+            try:
+                cursor.execute('''
+                    CREATE INDEX idx_file_path 
+                    ON file_metadata(file_path(255))
+                ''')
+            except MySQLerror as err:
+                if err.errno != 1061:  # Duplicate key error
+                    raise
+
+            try:
+                cursor.execute('''
+                    CREATE INDEX idx_status 
+                    ON file_metadata(status)
+                ''')
+            except MySQLerror as err:
+                if err.errno != 1061:
+                    raise
+
+            conn.commit()
+        except MySQLerror as e:
             conn.rollback()
+            logging.error(f"Schema initialization failed: {e}")
             raise
         finally:
             cursor.close()
+            conn.close()
+
+    @contextmanager
+    def transaction(self):
+        """Provide transactional scope with connection pooling"""
+        conn = self._pool.get_connection()
+        cursor = None
+        try:
+            cursor = conn.cursor()
+            yield cursor
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            logging.error(f"Transaction failed: {e}")
+            raise
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
     def get_or_create_directory(self, directory_path: str) -> int:
         """Get or create directory entry, returns directory ID"""
-        print("get_or_create_directory method called.\n")
         with self.transaction() as cursor:
-            print("with loop of get_or_create_directory in database is called.\n")
-            print(f"1st directory_path: {directory_path}\n")
             cursor.execute(
-                'INSERT OR IGNORE INTO directories (path) VALUES (?)',
+                'INSERT IGNORE INTO directories (path) VALUES (%s)',
                 (directory_path,)
             )
-            print(f"2nd directory_path: {directory_path}\n")
             cursor.execute(
-                'SELECT id FROM directories WHERE path = ?',
+                'SELECT id FROM directories WHERE path = %s',
                 (directory_path,)
             )
-            print(f"3rd directory_path: {directory_path}\n")
-            result = cursor.fetchone()
-            print(f"self.cursor.fetchone(): {result[0]}")
-            return result[0]
+            return cursor.fetchone()[0]
 
     def record_file_event(self, directory_path: str, file_path: str, 
                         file_hash: str, last_modified: str, status: str):
         """Record file event with proper transaction handling"""
-        print("record_file_event method called.\n")
         with self.transaction() as cursor:
             dir_id = self.get_or_create_directory(directory_path)
-            print(f"dir_id: {dir_id}")
-            
             cursor.execute('''
                 INSERT INTO file_metadata 
                 (directory_id, file_path, hash, last_modified, status)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(directory_id, file_path) DO UPDATE SET
-                    hash = excluded.hash,
-                    last_modified = excluded.last_modified,
-                    status = excluded.status,
-                    detected_at = CURRENT_TIMESTAMP
+                VALUES (%s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    hash = VALUES(hash),
+                    last_modified = VALUES(last_modified),
+                    status = VALUES(status)
             ''', (dir_id, file_path, file_hash, last_modified, status))
 
     def get_current_baseline(self, directory_path: str) -> Dict[str, dict]:
@@ -130,13 +165,18 @@ class database_operation:
                 SELECT f.file_path, f.hash, f.last_modified
                 FROM file_metadata f
                 JOIN directories d ON f.directory_id = d.id
-                WHERE d.path = ? AND f.status = 'current'
+                WHERE d.path = %s AND f.status = 'current'
             ''', (directory_path,))
-
             return {
                 row[0]: {'hash': row[1], 'last_modified': row[2]}
                 for row in cursor.fetchall()
             }
+
+    def get_all_monitored_directories(self):
+        """Get all directories with baseline data"""
+        with self.transaction() as cursor:
+            cursor.execute("SELECT DISTINCT path FROM directories")
+            return [row[0] for row in cursor.fetchall()]
 
     def get_file_history(self, file_path: str, limit: int = 10) -> List[Tuple]:
         """Get historical changes for a specific file"""
@@ -145,9 +185,9 @@ class database_operation:
                 SELECT d.path, f.hash, f.last_modified, f.status, f.detected_at
                 FROM file_metadata f
                 JOIN directories d ON f.directory_id = d.id
-                WHERE f.file_path = ?
+                WHERE f.file_path = %s
                 ORDER BY f.detected_at DESC
-                LIMIT ?
+                LIMIT %s
             ''', (file_path, limit))
             return cursor.fetchall()
 
@@ -157,8 +197,8 @@ class database_operation:
         with self.transaction() as cursor:
             cursor.execute('''
                 UPDATE file_metadata
-                SET hash = ?, last_modified = ?, status = ?
-                WHERE file_path = ?
+                SET hash = %s, last_modified = %s, status = %s
+                WHERE file_path = %s
             ''', (new_hash, last_modified, status, file_path))
 
     def delete_file_record(self, file_path: str):
@@ -167,7 +207,7 @@ class database_operation:
             cursor.execute('''
                 UPDATE file_metadata
                 SET status = 'deleted', detected_at = CURRENT_TIMESTAMP
-                WHERE file_path = ?
+                WHERE file_path = %s
             ''', (file_path,))
     
     def delete_directory_records(self, directory_path: str):
@@ -176,11 +216,11 @@ class database_operation:
             cursor.execute('''
                 DELETE FROM file_metadata
                 WHERE directory_id IN (
-                    SELECT id FROM directories WHERE path = ?
+                    SELECT id FROM directories WHERE path = %s
                 )
             ''', (directory_path,))
             cursor.execute('''
-                DELETE FROM directories WHERE path = ?
+                DELETE FROM directories WHERE path = %s
             ''', (directory_path,))
 
     def get_recent_changes(self, hours: int = 24) -> List[Tuple]:
@@ -190,20 +230,7 @@ class database_operation:
                 SELECT d.path, f.file_path, f.status, f.detected_at
                 FROM file_metadata f
                 JOIN directories d ON f.directory_id = d.id
-                WHERE f.detected_at >= datetime('now', ?)
+                WHERE f.detected_at >= NOW() - INTERVAL %s HOUR
                 ORDER BY f.detected_at DESC
-            ''', (f'-{hours} hours',))
+            ''', (hours,))
             return cursor.fetchall()
-
-    def close_connection(self):
-        """Close database connection safely"""
-        try:
-            if hasattr(self._thread_local, 'conn'):
-                self._thread_local.conn.close()
-                logging.info("Database connection closed")
-        except sqlite3.Error as e:
-            logging.error(f"Error closing connection: {str(e)}")
-
-    def __del__(self):
-        """Destructor to ensure connection closure"""
-        self.close_connection()
