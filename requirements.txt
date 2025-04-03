@@ -1,0 +1,6 @@
+watchdog
+joblib
+scikit-learn
+pandas
+mysql-connector-python
+python-dotenv

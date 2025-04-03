@@ -1,49 +1,83 @@
 import os
-import json
 import time
 import hashlib
 import logging
-
 from pathlib import Path
+from typing import Dict, Any
+from typing import Optional
+
 from src.utils.database import database_operation
 import config.logging_config as logging_config
 
 
 class FIM_monitor:
     def __init__(self):
-        self.BASELINE_FILE = r"data\baselines\baseline.json"
-        self.POLL_INTERVAL = 3
-        self.current_entries = {}
-        self.baseline_fle_path = os.path.abspath(self.BASELINE_FILE)
         self.database_instance = database_operation()
-        self.database_instance.database_table_creation()
+        self.database_instance._initialize_schema()
+        self.current_entries: Dict[str, Dict[str, Any]] = {}
 
-    def get_formatted_time(self, timestamp):
+    def get_formatted_time(self, timestamp: float) -> str:
         """Convert a timestamp to a readable format."""
         return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
-    def tracking_directory(self, directory):
-        """Traking the monitored directories to create baseline.json file."""
+    def tracking_directory(self, directory: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Track the monitored directory and store baseline in the database.
+        Returns a dictionary of file/folder metadata.
+        """
+        self.current_entries = {}
+
         for root, dirs, files in os.walk(directory):
             for folder in dirs:
-                folder_path = os.path.join(root, folder)  # here root used to track of the current folder.
+                folder_path = os.path.join(root, folder)
+                try:
+                    folder_hash = self.calculate_folder_hash(folder_path)
+                    last_modified = self.get_formatted_time(os.path.getmtime(folder_path))
+                except Exception as e:
+                    print(f"Error processing folder: {e}")
+
                 self.current_entries[folder_path] = {
                     "type": "folder",
-                    "hash": self.calculate_folder_hash(folder_path),
-                    "last_modified": self.get_formatted_time(os.path.getmtime(folder_path)),
+                    "hash": folder_hash,
+                    "last_modified": last_modified,
                 }
+
+                # Store in database
+                self.database_instance.record_file_event(
+                    directory_path=directory,
+                    file_path=folder_path,
+                    file_hash=folder_hash,
+                    last_modified=last_modified,
+                    status='current'
+                )
 
             for file in files:
                 file_path = os.path.join(root, file)
+                try:
+                    file_hash = self.calculate_hash(file_path)
+                    last_modified = self.get_formatted_time(os.path.getmtime(file_path))
+                except Exception as e:
+                    print(f"Error processing file: {e}")
+
                 self.current_entries[file_path] = {
                     "type": "file",
-                    "hash": self.calculate_hash(file_path),
+                    "hash": file_hash,
                     "size": os.path.getsize(file_path),
-                    "last_modified": self.get_formatted_time(os.path.getmtime(folder_path)),
+                    "last_modified": last_modified,
                 }
+
+                # Store in database
+                self.database_instance.record_file_event(
+                    directory_path=directory,
+                    file_path=file_path,
+                    file_hash=file_hash,
+                    last_modified=last_modified,
+                    status='current'
+                )
+
         return self.current_entries
 
-    def calculate_hash(self, file_path):
+    def calculate_hash(self, file_path: str) -> Optional[str]:
         """Calculate the SHA-256 hash of a file."""
         sha256 = hashlib.sha256()
         try:
@@ -51,41 +85,27 @@ class FIM_monitor:
                 while chunk := f.read(4096):
                     sha256.update(chunk)
                 sha256.update(os.path.basename(file_path).encode())
-        except (IsADirectoryError, FileNotFoundError):
+            return sha256.hexdigest()
+        except (IsADirectoryError, FileNotFoundError, PermissionError) as e:
+            logging.error(f"Error calculating hash for {file_path}: {str(e)}")
             return None
-        return sha256.hexdigest()
 
-    def calculate_folder_hash(self, folder_path):
+    def calculate_folder_hash(self, folder_path: str) -> str:
         """Calculate the SHA-256 hash of a folder."""
         sha256 = hashlib.sha256()
         folder = Path(folder_path)
         sha256.update(folder.name.encode())
+
+        # Sort entries for consistent hashing
         entries = sorted(folder.iterdir(), key=lambda x: x.name)
         for entry in entries:
-            sha256.update(entry.name.encode())  # Include the name of the file/folder
+            sha256.update(entry.name.encode())
             if entry.is_dir():
                 subfolder_hash = self.calculate_folder_hash(entry)
-                sha256.update(subfolder_hash.encode())  # Include subfolder's hash
+                sha256.update(subfolder_hash.encode())
+            elif entry.is_file():
+                file_hash = self.calculate_hash(entry)
+                if file_hash:
+                    sha256.update(file_hash.encode())
+        
         return sha256.hexdigest()
-
-    def save_baseline(self, baseline):
-        """Save the updated baseline to file."""
-        try:
-            with open(self.BASELINE_FILE, "w") as f:
-                json.dump(baseline, f, indent=4)
-            self.database_instance.store_information(self.current_entries)
-        except Exception as e:
-            logging.error(f"Error saving baseline: {e}")
-
-    def load_baseline(self, baseline_file):
-        """Load the baseline from file and ensure it has valid structure."""
-        if os.path.exists(baseline_file):
-            with open(baseline_file, "r") as f:
-                baseline = json.load(f)
-                for entry_path, entry_data in baseline.items():
-                    if not isinstance(entry_data, dict):  # if entry_data is not dictionary, then it will print the unknown type.
-                        baseline[entry_path] = {"type": "unknown"}
-                    elif "type" not in entry_data:
-                        baseline[entry_path]["type"] = "file"
-                return baseline
-        return {}

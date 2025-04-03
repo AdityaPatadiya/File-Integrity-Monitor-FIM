@@ -1,8 +1,0 @@
-2025-02-25 09:28:43,832 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\test.txt
-2025-02-25 09:28:43,852 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\text2.txt
-2025-02-25 09:28:43,854 - WARNING - Folder added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello
-2025-02-25 09:28:43,854 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello\hello.txt
-2025-02-25 09:28:43,855 - WARNING - Folder added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello\nested_folder
-2025-02-25 09:28:43,855 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello\nested_folder\test.txt
-2025-02-25 09:28:43,870 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello\nested_folder\test2.txt
-2025-02-25 09:28:43,885 - WARNING - File added: E:\coding\PYTHON\FIM\Example\dummy_folder_1\hello\nested_folder\test3.txt

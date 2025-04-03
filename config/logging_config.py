@@ -6,42 +6,63 @@ import re
 
 class configure_logger:
     def __init__(self):
-         self.loggers = {}
+        """Initialize logger registry and ensure logs directory exists"""
+        self.loggers = {}
+        self.logs_dir = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "..", "logs"))
+        Path(self.logs_dir).mkdir(parents=True, exist_ok=True)
 
-    def _sanitize_directory_name(self, directory):
-            """Sanitize directory name for safe use in filenames."""
-            sanitized = re.sub(r'[\\/*?:"<>|]', '_', directory)
-            # Replace path separators with underscores
-            sanitized = sanitized.replace(os.sep, '_')
-            # Remove leading underscores if any
-            sanitized = sanitized.lstrip('_')
-            return sanitized
+    def _sanitize_basename(self, directory):
+        """
+        Extract and sanitize the final directory name
+        Example: 
+        - Input: '/var/log/app' → Returns: 'app'
+        - Input: 'C:\\Program Files\\App' → Returns: 'App'
+        """
+        basename = os.path.basename(os.path.normpath(directory))
+        return re.sub(r'[\\/*?:"<>|]', '_', basename).strip('_')
 
     def _get_or_create_logger(self, directory):
-        """Retrieve or create a logger for the specified directory."""
+        """
+        Get or create a configured logger for the directory
+        Returns: Configured Logger object
+        Raises: FileNotFoundError if directory doesn't exist
+        """
         normalized_dir = os.path.normpath(directory)
+        if not os.path.exists(normalized_dir):
+            raise FileNotFoundError(f"Directory {normalized_dir} does not exist")
+
+        log_basename = self._sanitize_basename(normalized_dir)
         if normalized_dir in self.loggers:
-            print(normalized_dir)
             return self.loggers[normalized_dir]
 
-        sanitized_name = self._sanitize_directory_name(normalized_dir)
-        logger_name = f"FIM_{sanitized_name}"
-        logger = logging.getLogger(logger_name)
+        logger = logging.getLogger(f"FIM_{log_basename}")
 
-        # Prevent adding duplicate handlers
-        if not logger.handlers:
-            log_file = f"FIM_Logging_{sanitized_name}.log"
-            log_dir = os.path.join(os.path.dirname(__file__), "../logs")
-            log_path = os.path.abspath(os.path.join(log_dir, log_file))
+        if not logger.handlers:  # Only configure if not already set up
+            log_file = os.path.join(self.logs_dir, f"FIM_{log_basename}.log")
             
-            # Ensure logs directory exists
-            Path(log_dir).mkdir(parents=True, exist_ok=True)
+            handler = logging.FileHandler(
+                log_file,
+                encoding='utf-8'  # Ensure UTF-8 support for special characters
+            )
+            handler.setFormatter(logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            ))
 
-            handler = logging.FileHandler(log_path)
-            formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-            handler.setFormatter(formatter)
             logger.addHandler(handler)
             logger.setLevel(logging.INFO)
+            logger.propagate = False  # Prevent duplicate logs
+
+            logger.info(f"Initialized FIM logging for: {normalized_dir}")
 
         self.loggers[normalized_dir] = logger
         return logger
+
+    def shutdown(self):
+        """Safely close all logging resources"""
+        for logger in self.loggers.values():
+            for handler in logger.handlers[:]:
+                handler.close()
+                logger.removeHandler(handler)
+        self.loggers.clear()
