@@ -213,7 +213,7 @@ class monitor_changes:
                 if directory in excluded_files:
                     continue
 
-                logger = self.configre_logger._get_or_create_logger(directory)
+                logger = self.configure_logger._get_or_create_logger(directory)
                 logger.info(f"Starting monitoring for {directory}")
 
                 event_handler = FIMEventHandler(self, logger)
@@ -229,7 +229,7 @@ class monitor_changes:
                 print("\nShutdown down...")
                 self.observer.stop()
                 self.observer.join()
-                self.configre_logger.shutdown()
+                self.configure_logger.shutdown()
                 print("Shutdown complete.")
         except Exception as e:
             if self.current_logger:
@@ -237,7 +237,7 @@ class monitor_changes:
             else:
                 self.observer.stop()
                 self.observer.join()  # Ensure observer is stopped even on error
-                self.configre_logger.shutdown()
+                self.configure_logger.shutdown()
 
     def _save_reported_changes(self):
         for change_type, changes in self.reported_changes.items():
