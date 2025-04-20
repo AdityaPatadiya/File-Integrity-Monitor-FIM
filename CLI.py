@@ -23,18 +23,19 @@ class CLI:
 
     def main(self):
         parser = argparse.ArgumentParser(description="File Integrity Monitor CLI Tool")
-        parser.add_argument("--monitor", action="store_true", help="Start monitoring multiple directory")
-        parser.add_argument("--view-baseline", action="store_true", help="View the current baseline data")
-        parser.add_argument("--reset-baseline", action="store_true", help="Reset the baseline data")
-        parser.add_argument("--view-logs", action="store_true", help="View the log file")
-        parser.add_argument("--analyze-logs", action="store_true", help="Analyze the log file for anomalies")
-        parser.add_argument("--exclude", type=str, help="Exclude selected file and folder")
-        parser.add_argument("--dir", nargs="+", type=str, help="Add directories to monitor.")
+        parser.add_argument("-m", "--monitor", action="store_true", help="Start monitoring multiple directory")
+        parser.add_argument("-v", "--view-baseline", action="store_true", help="View the current baseline data")
+        parser.add_argument("-r", "--reset-baseline", action="store_true", help="Reset the baseline data")
+        parser.add_argument("-l", "--view-logs", action="store_true", help="View the log file")
+        parser.add_argument("-a", "--analyze-logs", action="store_true", help="Analyze the log file for anomalies")
+        parser.add_argument("-e", "--exclude", type=str, help="Exclude selected file and folder")
+        parser.add_argument("-d", "--dir", nargs="+", type=str, help="Add directories to monitor.")
 
         args = parser.parse_args()
+        monitored_dirs = []
         if args.dir is not None:
             monitored_dirs = [os.path.abspath(dir) for dir in args.dir]
-        
+
         if any([args.monitor, args.reset_baseline, args.analyze_logs]):
             self.authentication.authorised_credentials()
             self.authenticated = True
@@ -69,14 +70,15 @@ class CLI:
             else:
                 self.monitor_changes.reset_baseline(monitored_dirs)
 
-        if not (args.monitor or args.view_baseline or args.reset_baseline or args.view_logs or args.analyze_logs):
+        if not any(vars(args).values()):
             parser.print_help()
+            return
 
         if args.view_logs:
             self.monitor_changes.view_logs()
 
         if args.exclude:
-            self.exclude_files.append(args.monitor[0])
+            self.exclude_files.append(args.exclude)
 
         if args.monitor:
             if args.dir is None:

@@ -4,8 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import IsolationForest
 from .log_parser import parse_log_file
 
-MODEL_PATH = r"data\models\anomaly_model.pkl"
-VECTORIZER_PATH = r"data\models\vectorizer.pkl"
+MODEL_DIR = os.path.join("data", "models")
+MODEL_PATH = os.path.join(MODEL_DIR, "anomaly_model.pkl")
+VECTORIZER_PATH = os.path.join(MODEL_DIR, "vectorizer.pkl")
 
 def train_anomaly_model():
     log_folder_path = 'logs'
@@ -24,6 +25,8 @@ def train_anomaly_model():
     # Train Isolation Forest model
     model = IsolationForest(contamination=0.1, random_state=42)
     model.fit(X)
+
+    os.makedirs(MODEL_DIR, exist_ok=True)
 
     # Save the trained model & vectorizer
     joblib.dump(model, MODEL_PATH)

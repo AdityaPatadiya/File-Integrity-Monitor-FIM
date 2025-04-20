@@ -27,77 +27,53 @@ class FIMEventHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         try:
-            dir_path = self._get_directory_path(event.src_path)
-            last_modified = self.parent.fim_instance.get_formatted_time(os.path.getmtime(event.src_path))
-
-            if not event.is_directory:
-                file_hash = self.parent.fim_instance.calculate_hash(event.src_path)
-                self.parent.database_instance.record_file_event(
-                    directory_path=dir_path,
-                    file_path=event.src_path,
-                    file_hash=file_hash,
-                    last_modified=last_modified,
-                    status='added'
-                )
+            _path = event.src_path
+            if event.is_directory:
+                current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
+                print(f"current folder hash: {current_hash}")
+                is_file = False
             else:
-                folder_hash = self.parent.fim_instance.calculate_folder_hash(event.src_path)
-                self.parent.database_instance.record_file_event(
-                    directory_path=dir_path,
-                    file_path=event.src_path,
-                    file_hash=folder_hash,
-                    last_modified=last_modified,
-                    status='added'
-                )
+                current_hash = self.parent.fim_instance.calculate_hash(_path)
+                print(f"current file hash: {current_hash}")
+                is_file = True
 
-            self.parent.file_folder_addition(event.src_path)
-
+            self.parent.file_folder_addition(_path, current_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Creation error: {str(e)}")
 
     def on_modified(self, event):
         try:
+            _path = event.src_path
+            print(_path)
+
             if event.is_directory:
-                return
+                current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
+                print(f"current folder hash: {current_hash}")
+                is_file = False
+            else:
+                current_hash = self.parent.fim_instance.calculate_hash(_path)
+                print(f"current file hash: {current_hash}")
+                is_file = True
 
-            dir_path = self._get_directory_path(event.src_path)
-            last_modified = self.parent.fim_instance.get_formatted_time(os.path.getmtime(event.src_path))
-            current_hash = self.parent.fim_instance.calculate_hash(event.src_path)
-
-            original_hash = self.parent.database_instance.get_current_baseline(dir_path).get(event.src_path, {}).get('hash', '')
-
-            if original_hash != current_hash:
-                self.parent.database_instance.record_file_event(
-                    directory_path=dir_path,
-                    file_path=event.src_path,
-                    file_hash=current_hash,
-                    last_modified=last_modified,
-                    status='modified'
-                )
-                self.parent.file_folder_modification(event.src_path)
-
+            original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
+            print(f"original hash: {original_hash}")
+            self.parent.file_folder_modification(_path, current_hash, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Modification error: {str(e)}")
 
     def on_deleted(self, event):
         try:
-            dir_path = self._get_directory_path(event.src_path)
-
-            if not event.is_directory:
-                baseline = self.parent.database_instance.get_current_baseline(dir_path)
-                file_hash = baseline.get(event.src_path, {}).get('hash', '')
-                last_modified = baseline.get(event.src_path, {}).get('last_modified', '')
-
-                self.parent.database_instance.record_file_event(
-                    directory_path=dir_path,
-                    file_path=event.src_path,
-                    file_hash=file_hash,
-                    last_modified=last_modified,
-                    status='deleted'
-                )
-            self.parent.file_folder_deletion(event.src_path)
-
+            _path = event.src_path
+            if event.is_directory:
+                is_file = False
+            else:
+                is_file = True
+            original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
+            print(f"original hash: {original_hash}")
+            self.parent.file_folder_deletion(_path, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Deletion error: {str(e)}")
+
 
 class monitor_changes:
     def __init__(self):
@@ -113,77 +89,53 @@ class monitor_changes:
         self.database_instance = database_operation()
         self.configure_logger = configure_logger()
         self.observer = Observer()
-        self.current_file_hash = ""
-        self.original_file_hash = ""
-        self.current_folder_hash = ""
-        self.original_folder_hash = ""
         self.current_logger = None
         self.current_directories = []
         self.event_handlers = []
 
-    def file_folder_addition(self, _path):
-        if os.path.isfile(_path):
-            if _path not in self.reported_changes["added"]:
-                self.current_logger.warning(f"File added: {_path}")
-                self.reported_changes["added"][_path] = {
-                    "hash": self.current_file_hash,
-                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
-                }
-        else:
-            if _path not in self.reported_changes["added"]:
-                self.current_logger.warning(f"Folder added: {_path}")
-                self.reported_changes["added"][_path] = {
-                    "hash": self.current_folder_hash,
-                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
-                }
+    def file_folder_addition(self, _path, current_hash, is_file, logger):
+        change_type = "File" if is_file else "Folder"
+        if _path not in self.reported_changes["added"]:
+            logger.warning(f"{change_type} is added: {_path}")
+            self.reported_changes["added"][_path] = {
+                "hash": current_hash,
+                "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+            }
 
-    def file_folder_modification(self, _path):
-        if os.path.isfile(_path):
-            if _path in self.reported_changes["modified"]:
-                if self.current_file_hash != self.reported_changes["modified"][_path]["hash"]:
-                    self.current_logger.error(f"File modified: {_path}")
-                    self.reported_changes["modified"][_path] = {
-                        "hash": self.current_file_hash,
-                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
-                    }
+    def file_folder_modification(self, _path, current_hash, original_hash, is_file, logger):
+        change_type = "File" if is_file else "Folder"
+        
+        if current_hash != original_hash:
+            if _path not in self.reported_changes["modified"]:
+                print(f"logger: {logger}\n")
+                logger.error(f"{change_type} modified: {_path}")
+                self.reported_changes["modified"][_path] = {
+                    "hash": current_hash,
+                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
+                }
             else:
-                if self.current_file_hash != self.original_file_hash:
-                    self.current_logger.error(f"File modified: {_path}")
+                previous_hash = self.reported_changes["modified"][_path].get("hash", original_hash)
+                if current_hash != previous_hash:
+                    print(f"logger: {logger}\n")
+                    logger.error(f"{change_type} modified again: {_path}")
                     self.reported_changes["modified"][_path] = {
-                        "hash": self.current_file_hash,
+                        "hash": current_hash,
                         "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
                     }
         else:
             if _path in self.reported_changes["modified"]:
-                if self.current_folder_hash != self.reported_changes["modified"][_path]["hash"]:
-                    self.current_logger.error(f"Folder modified: {_path}")
-                    self.reported_changes["modified"][_path] = {
-                        "hash": self.current_folder_hash,
-                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
-                    }
-            else:
-                if self.current_folder_hash != self.original_folder_hash:
-                    self.current_logger.error(f"Folder modified: {_path}")
-                    self.reported_changes["modified"][_path] = {
-                        "hash": self.current_folder_hash,
-                        "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path))
-                    }
+                del self.reported_changes["modified"][_path]
 
-    def file_folder_deletion(self, _path):
-        if os.path.isfile(_path):
-            if _path not in self.reported_changes["deleted"]:
-                self.current_logger.warning(f"File deleted: {_path}")
-                self.reported_changes["deleted"][_path] = {
-                    "hash": self.original_file_hash,
-                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path)) if os.path.exists(_path) else "N/A"
-                }
-        else:
-            if _path not in self.reported_changes["deleted"]:
-                self.current_logger.warning(f"Folder deleted: {_path}")
-                self.reported_changes["deleted"][_path] = {
-                    "hash": self.original_folder_hash,
-                    "last_modified": self.fim_instance.get_formatted_time(os.path.getmtime(_path)) if os.path.exists(_path) else "N/A"
-                }
+    def file_folder_deletion(self, _path, original_hash, is_file, logger):
+        change_type = "File" if is_file else "Folder"
+        
+        if _path not in self.reported_changes["deleted"]:
+            last_modified = self.database_instance.get_current_baseline(_path).get('last_modified', 'N/A')
+            logger.warning(f"{change_type} deleted: {_path}")
+            self.reported_changes["deleted"][_path] = {
+                "hash": original_hash,
+                "last_modified": last_modified
+            }
 
     def monitor_changes(self, directories, excluded_files):
         """Monitor specified directories for changes using Watchdog."""
@@ -218,7 +170,8 @@ class monitor_changes:
 
                 event_handler = FIMEventHandler(self, logger)
                 event_handler.directory_path = directory
-                self.observer.schedule(event_handler, directory, recursive=True)
+                print(f"directory: {directory}")
+                self.observer.schedule(event_handler, directory, recursive=False)
                 self.event_handlers.append(event_handler)
 
             self.observer.start()
@@ -229,6 +182,15 @@ class monitor_changes:
                 print("\nShutdown down...")
                 self.observer.stop()
                 self.observer.join()
+                self.configure_logger.shutdown()
+                self._save_reported_changes()
+                print("Shutdown complete.")
+        except Exception as e:
+            if self.current_logger:
+                self.current_logger.error(f"Monitoring error: {e}")
+            else:
+                self.observer.stop()
+                self.observer.join()  # Ensure observer is stopped even on error
                 self.configure_logger.shutdown()
                 print("Shutdown complete.")
         except Exception as e:
@@ -271,7 +233,7 @@ class monitor_changes:
                         return super().default(obj)
 
                 print(json.dumps(baseline, indent=4, cls=DateTimeEncoder))
-                
+
         except Exception as e:
             print(f"Error viewing baseline: {str(e)}")
 
@@ -284,7 +246,7 @@ class monitor_changes:
                     continue
 
                 with self.database_instance.transaction() as cursor:
-                    cursor.execute('DELETE FROM file_metadata WHERE directory_path = ?', (directory,))
+                    cursor.execute('DELETE FROM file_metadata WHERE file_path = %s', (directory,))
                     self.fim_instance.tracking_directory(directory)
                     print(f"Reset baseline for {directory}")
             except Exception as e:
@@ -309,6 +271,6 @@ class monitor_changes:
                 for log_path in self.logs_dir.glob("FIM_*.log"):
                     print(f"\n=== Logs for {log_path.stem} ===")
                     with open(log_path, 'r', encoding='utf-8') as f:
-                        print(f.read(4096))  # Show first 4KB per file
+                        print(f.read())  # Show first 4KB per file [read(4096)]
         except Exception as e:
             print(f"Log viewing error: {str(e)}")

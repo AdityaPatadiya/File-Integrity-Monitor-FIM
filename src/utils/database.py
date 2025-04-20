@@ -1,10 +1,8 @@
-import mysql.connector
 from mysql.connector import pooling, Error as MySQLerror
 import logging
 import os
 from contextlib import contextmanager
 from typing import Dict, List, Tuple
-from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()

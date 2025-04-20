@@ -40,7 +40,7 @@ class configure_logger:
 
         if not logger.handlers:  # Only configure if not already set up
             log_file = os.path.join(self.logs_dir, f"FIM_{log_basename}.log")
-            
+
             handler = logging.FileHandler(
                 log_file,
                 encoding='utf-8'  # Ensure UTF-8 support for special characters
