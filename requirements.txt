@@ -1,6 +1,6 @@
-watchdog
-joblib
-scikit-learn
-pandas
-mysql-connector-python
-python-dotenv
+watchdog==6.0.0
+joblib==1.4.2
+scikit-learn==1.6.1
+pandas==2.2.3
+mysql-connector-python==9.3.0
+python-dotenv==1.1.0
