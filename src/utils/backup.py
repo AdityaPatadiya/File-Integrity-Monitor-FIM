@@ -1,16 +1,19 @@
 import os
 import shutil
 from datetime import datetime
+import pytz
 
 class Backup:
     def __init__(self):
-        self.backup_root = "/home/aditya/opensource/FIM_Backup"
+        self.backup_root = "../FIM_Backup"
         os.makedirs(self.backup_root, exist_ok=True)
         self.current_backup_dir = None  # Track current backup session
 
     def create_backup_session(self):
         """Create a timestamped parent backup directory"""
-        timestamp = datetime.now().strftime(r"%Y%m%d_%H%M")
+        timezone = pytz.timezone('Asia/Kolkata')
+        timestamp = datetime.now(timezone).strftime(r"%Y%m%d_%H%M")
+        print(timestamp)
         self.current_backup_dir = os.path.join(
             self.backup_root,
             f"backup_{timestamp}"
