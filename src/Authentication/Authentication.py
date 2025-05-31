@@ -70,6 +70,7 @@ class Authentication:
             )
             self.conn.commit()
             print("User registered successfully")
+            return username
         except mysql.connector.IntegrityError:
             print("Username already exists")
         except mysql.connector.Error as err:
@@ -92,6 +93,7 @@ class Authentication:
             else:
                 print("Access denied")
                 exit(1)
+            return username
         except mysql.connector.Error as err:
             print(f"Login error: {err}")
             exit(1)
@@ -101,12 +103,10 @@ class Authentication:
         while True:
             choice = input("Are you a new user? (yes/no): ").strip().lower()
             if choice == 'yes':
-                self.register_new_user()
-                break
+                return self.register_new_user()
             elif choice == 'no':
-                self.login_existing_user()
-                break
-            print("Invalid choice. Please enter 'yes' or 'no'")
+                return self.login_existing_user()
+            print(f"Invalid choice. Please enter 'yes' or 'no'.\nYou've entred: {choice}")
 
     def close_connection(self):
         """Clean up database resources"""

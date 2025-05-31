@@ -1,13 +1,11 @@
 import os
 import time
 import hashlib
-import logging
 from pathlib import Path
-from typing import Dict, Any
-from typing import Optional
+from typing import Dict, Any, Optional
 
 from src.utils.database import database_operation
-import config.logging_config as logging_config
+from config.logging_config import configure_logger
 
 
 class FIM_monitor:
@@ -15,17 +13,20 @@ class FIM_monitor:
         self.database_instance = database_operation()
         self.database_instance._initialize_schema()
         self.current_entries: Dict[str, Dict[str, Any]] = {}
+        self.configure_logger = configure_logger()
+        self.logger = None
 
     def get_formatted_time(self, timestamp: float) -> str:
         """Convert a timestamp to a readable format."""
         return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
-    def tracking_directory(self, directory: str) -> Dict[str, Dict[str, Any]]:
+    def tracking_directory(self, auth_user, directory: str) -> Dict[str, Dict[str, Any]]:
         """
         Track the monitored directory and store baseline in the database.
         Returns a dictionary of file/folder metadata.
         """
         self.current_entries = {}
+        self.logger = self.configure_logger._get_or_create_logger(auth_user, directory)
 
         for root, dirs, files in os.walk(directory):
             for folder in dirs:
@@ -87,7 +88,7 @@ class FIM_monitor:
                 sha256.update(os.path.basename(file_path).encode())
             return sha256.hexdigest()
         except (IsADirectoryError, FileNotFoundError, PermissionError) as e:
-            logging.error(f"Error calculating hash for {file_path}: {str(e)}")
+            self.logger.error(f"Error calculating hash for {file_path}: {str(e)}")
             return None
 
     def calculate_folder_hash(self, folder_path: str) -> str:

@@ -14,11 +14,12 @@ class CLI:
         self.exclude_files = []
         self.authenticated = False
         self.auth_expiry = None
+        self.auth_user = ""
 
     def _require_auth(self):
         if self.auth_expiry and datetime.now() < self.auth_expiry:
             return
-        self.authentication.login_existing_user()
+        self.auth_user = self.authentication.authorised_credentials()
         self.auth_expiry = datetime.now() + timedelta(minutes=15)  # 15min session
 
     def main(self):
@@ -37,7 +38,7 @@ class CLI:
             monitored_dirs = [os.path.abspath(dir) for dir in args.dir]
 
         if any([args.monitor, args.reset_baseline, args.analyze_logs]):
-            self.authentication.authorised_credentials()
+            self._require_auth()
             self.authenticated = True
 
         if args.analyze_logs:
@@ -91,11 +92,10 @@ class CLI:
                         print(f"Creating directory: {directory}")
                         os.makedirs(directory, exist_ok=True)
                     valid_dirs.append(os.path.abspath(directory))
-                print(f"valid_dirs: {valid_dirs}\n")
 
                 print("Starting the Integrity Monitor. Use Ctrl+C to exit")
                 try:
-                    self.monitor_changes.monitor_changes(valid_dirs, self.exclude_files)
+                    self.monitor_changes.monitor_changes(self.auth_user, valid_dirs, self.exclude_files)
                 except KeyboardInterrupt:
                     print("\nMonitoring stopped. Cleaning up...")
                     raise SystemExit

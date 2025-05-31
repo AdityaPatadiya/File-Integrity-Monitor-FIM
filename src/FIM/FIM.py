@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
 from src.utils.backup import Backup
 from src.utils.database import database_operation
 from src.FIM.fim_utils import FIM_monitor
@@ -104,7 +105,7 @@ class monitor_changes:
 
     def file_folder_modification(self, _path, current_hash, original_hash, is_file, logger):
         change_type = "File" if is_file else "Folder"
-        
+
         if current_hash != original_hash:
             if _path not in self.reported_changes["modified"]:
                 print(f"logger: {logger}\n")
@@ -128,7 +129,7 @@ class monitor_changes:
 
     def file_folder_deletion(self, _path, original_hash, is_file, logger):
         change_type = "File" if is_file else "Folder"
-        
+
         if _path not in self.reported_changes["deleted"]:
             last_modified = self.database_instance.get_current_baseline(_path).get('last_modified', 'N/A')
             logger.warning(f"{change_type} deleted: {_path}")
@@ -137,7 +138,7 @@ class monitor_changes:
                 "last_modified": last_modified
             }
 
-    def monitor_changes(self, directories, excluded_files):
+    def monitor_changes(self, auth_username, directories, excluded_files):
         """Monitor specified directories for changes using Watchdog."""
         try:
             self.current_directories = directories
@@ -146,12 +147,12 @@ class monitor_changes:
                 if not os.path.exists(directory):
                     raise FileNotFoundError(f"Directory {directory} does not exist")
                 try:
-                    self.backup_instance.create_backup(directory)
+                    self.backup_instance.create_backup(directory, auth_username)
                 except Exception as e:
                     print(f"Failed to create backup for {directory}")
                     continue
 
-                baseline = self.fim_instance.tracking_directory(directory)
+                baseline = self.fim_instance.tracking_directory(auth_username, directory)
                 for path, data in baseline.items():
                     self.database_instance.record_file_event(
                         directory_path=directory,
@@ -165,7 +166,7 @@ class monitor_changes:
                 if directory in excluded_files:
                     continue
 
-                logger = self.configure_logger._get_or_create_logger(directory)
+                logger = self.configure_logger._get_or_create_logger(auth_username, directory)
                 logger.info(f"Starting monitoring for {directory}")
 
                 event_handler = FIMEventHandler(self, logger)
@@ -193,13 +194,6 @@ class monitor_changes:
                 self.observer.join()  # Ensure observer is stopped even on error
                 self.configure_logger.shutdown()
                 print("Shutdown complete.")
-        except Exception as e:
-            if self.current_logger:
-                self.current_logger.error(f"Monitoring error: {e}")
-            else:
-                self.observer.stop()
-                self.observer.join()  # Ensure observer is stopped even on error
-                self.configure_logger.shutdown()
 
     def _save_reported_changes(self):
         for change_type, changes in self.reported_changes.items():
