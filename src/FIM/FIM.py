@@ -31,11 +31,9 @@ class FIMEventHandler(FileSystemEventHandler):
             _path = event.src_path
             if event.is_directory:
                 current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
-                print(f"current folder hash: {current_hash}")
                 is_file = False
             else:
                 current_hash = self.parent.fim_instance.calculate_hash(_path)
-                print(f"current file hash: {current_hash}")
                 is_file = True
 
             self.parent.file_folder_addition(_path, current_hash, is_file, self.logger)
@@ -45,19 +43,15 @@ class FIMEventHandler(FileSystemEventHandler):
     def on_modified(self, event):
         try:
             _path = event.src_path
-            print(_path)
 
             if event.is_directory:
                 current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
-                print(f"current folder hash: {current_hash}")
                 is_file = False
             else:
                 current_hash = self.parent.fim_instance.calculate_hash(_path)
-                print(f"current file hash: {current_hash}")
                 is_file = True
 
             original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
-            print(f"original hash: {original_hash}")
             self.parent.file_folder_modification(_path, current_hash, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Modification error: {str(e)}")
@@ -70,7 +64,6 @@ class FIMEventHandler(FileSystemEventHandler):
             else:
                 is_file = True
             original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
-            print(f"original hash: {original_hash}")
             self.parent.file_folder_deletion(_path, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Deletion error: {str(e)}")
@@ -108,7 +101,6 @@ class monitor_changes:
 
         if current_hash != original_hash:
             if _path not in self.reported_changes["modified"]:
-                print(f"logger: {logger}\n")
                 logger.error(f"{change_type} modified: {_path}")
                 self.reported_changes["modified"][_path] = {
                     "hash": current_hash,
@@ -171,8 +163,7 @@ class monitor_changes:
 
                 event_handler = FIMEventHandler(self, logger)
                 event_handler.directory_path = directory
-                print(f"directory: {directory}")
-                self.observer.schedule(event_handler, directory, recursive=False)
+                self.observer.schedule(event_handler, directory, recursive=True)
                 self.event_handlers.append(event_handler)
 
             self.observer.start()
