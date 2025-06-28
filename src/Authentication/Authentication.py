@@ -1,19 +1,45 @@
 import getpass
 import hashlib
+import logging
 import mysql.connector
-from mysql.connector import errorcode
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(message)s'
+)
 
 
 class Authentication:
     def __init__(self):
         self.conn = None
         self.cursor = None
+        self.create_database_if_not_exists()
         self.connect_to_db()
         self.create_user_table()
+
+    def create_database_if_not_exists(self):
+        try:
+            temp_config = {
+                "host": os.getenv('DB_HOST'),
+                "user": os.getenv('DB_USER'),
+                "password": os.getenv('DB_PASSWORD'),
+            }
+
+            cnx = mysql.connector.connect(**temp_config)
+            cursor = cnx.cursor()
+            db_name = os.getenv('AUTH_DB_NAME')
+
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
+            logging.info(f"Database '{db_name}' verified or created.")
+            cursor.close()
+            cnx.close()
+        except mysql.connector.Error as err:
+            logging.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
+            raise
 
     def connect_to_db(self):
         """Connect to MySQL database using environment variables"""

@@ -30,7 +30,14 @@ The File Integrity Monitor (FIM) is a CLI tool designed to monitor directories f
     ```
 
 3. Set up the MySQL database:
-    - Create a database for storing baseline data and authentication information.
+    - `sudo mysql`
+    - `SELECT user, host FROM mysql.user;`
+
+    - ```
+        CREATE USER 'fim_user'@'localhost' IDENTIFIED BY 'strong_password';
+        GRANT ALL PRIVILEGES ON *.* TO 'fim_user'@'localhost' WITH GRANT OPTION;
+        FLUSH PRIVILEGES;
+        ```
     - Update the `.env` file with your database credentials (see below).
 
 ## Configuration

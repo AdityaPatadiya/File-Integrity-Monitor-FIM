@@ -58,7 +58,7 @@ class configure_logger:
                 encoding='utf-8'  # Ensure UTF-8 support for special characters
             )
             handler.setFormatter(logging.Formatter(
-                "%(asctime)s - %(levelname)s - %(username)s - %(message)s",
+                "%(asctime)s | %(levelname)s | %(username)s | %(message)s",
                 datefmt = timezone()[0]
             ))
 

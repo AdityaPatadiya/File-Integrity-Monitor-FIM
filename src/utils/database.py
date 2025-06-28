@@ -1,4 +1,5 @@
 from mysql.connector import pooling, Error as MySQLerror
+import mysql.connector
 import logging
 import os
 from contextlib import contextmanager
@@ -9,7 +10,7 @@ load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s | %(levelname)s | %(message)s'
 )
 
 
@@ -23,10 +24,31 @@ class database_operation:
             cls._instance._initialize_pool()
             cls._instance._initialize_schema()
         return cls._instance
+    
+    def create_database_if_not_exists(self):
+        try:
+            temp_config = {
+                "host": os.getenv('DB_HOST'),
+                "user": os.getenv('DB_USER'),
+                "password": os.getenv('DB_PASSWORD'),
+            }
+
+            cnx = mysql.connector.connect(**temp_config)
+            cursor = cnx.cursor()
+            db_name = os.getenv('DB_NAME')
+
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
+            logging.info(f"Database '{db_name}' verified or created.")
+            cursor.close()
+            cnx.close()
+        except MySQLerror as err:
+            logging.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
+            raise
 
     def _initialize_pool(self):
         """Initialize MySQL connection pool with environment variables"""
         try:
+            self.create_database_if_not_exists()
             self._pool = pooling.MySQLConnectionPool(
                 pool_name="fim_pool",
                 pool_size=int(os.getenv('DB_POOL_SIZE', '32')),
