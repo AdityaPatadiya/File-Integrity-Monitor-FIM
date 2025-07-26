@@ -222,7 +222,7 @@ class monitor_changes:
         except Exception as e:
             print(f"Error viewing baseline: {str(e)}")
 
-    def reset_baseline(self, directories):
+    def reset_baseline(self,auth_username, directories):
         """Safely reset baseline with transaction support"""
         for directory in directories:
             try:
@@ -232,7 +232,7 @@ class monitor_changes:
 
                 with self.database_instance.transaction() as cursor:
                     cursor.execute('DELETE FROM file_metadata WHERE file_path = %s', (directory,))
-                    self.fim_instance.tracking_directory(directory)
+                    self.fim_instance.tracking_directory(auth_username, directory)
                     print(f"Reset baseline for {directory}")
             except Exception as e:
                 print(f"Failed resetting baseline for {directory}: {str(e)}")

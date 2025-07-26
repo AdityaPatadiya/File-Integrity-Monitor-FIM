@@ -69,7 +69,7 @@ class CLI:
                 print("Please specify directories.")
                 parser.print_help()
             else:
-                self.monitor_changes.reset_baseline(monitored_dirs)
+                self.monitor_changes.reset_baseline(self.auth_user, monitored_dirs)
 
         if not any(vars(args).values()):
             parser.print_help()

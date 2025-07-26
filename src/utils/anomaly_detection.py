@@ -1,5 +1,6 @@
 import os
 import joblib
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import IsolationForest
 from .log_parser import parse_log_file
@@ -10,13 +11,18 @@ VECTORIZER_PATH = os.path.join(MODEL_DIR, "vectorizer.pkl")
 
 def train_anomaly_model():
     log_folder_path = 'logs'
+    log_dfs = []
     for file in os.listdir(log_folder_path):
         file_path = os.path.join(log_folder_path, file)
         log_df = parse_log_file(file_path)
+        if log_df is not None and not log_df.empty:
+            log_dfs.append(log_df)
 
-    if log_df.empty:
+    if not log_dfs:
         print("No log data available for training.")
         return None, None
+
+    log_df = pd.concat(log_dfs, ignore_index=True)
 
     # Convert log messages to TF-IDF features
     vectorizer = TfidfVectorizer()

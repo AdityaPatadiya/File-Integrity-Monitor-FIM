@@ -47,6 +47,7 @@ class database_operation:
 
     def _initialize_pool(self):
         """Initialize MySQL connection pool with environment variables"""
+        cursor = None
         try:
             self.create_database_if_not_exists()
             self._pool = pooling.MySQLConnectionPool(
@@ -68,7 +69,8 @@ class database_operation:
                 cursor.execute("SELECT 1")
                 cursor.fetchall()  # Consume results
             finally:
-                cursor.close()
+                if cursor:
+                    cursor.close()
                 test_conn.close()
 
         except MySQLerror as e:
@@ -77,9 +79,14 @@ class database_operation:
 
     def _initialize_schema(self):
         """Initialize database schema with proper error handling"""
+        if self._pool is None:
+            raise RuntimeError("Database connection pool is not initialized.")
+        if self._pool is None:
+            raise RuntimeError("Database connection pool is not initialized.")
         conn = self._pool.get_connection()
-        cursor = conn.cursor()
+        cursor = None
         try:
+            cursor = conn.cursor()
             # Create tables
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS directories (
@@ -126,15 +133,19 @@ class database_operation:
         except MySQLerror as e:
             conn.rollback()
             logging.error(f"Schema initialization failed: {e}")
-            raise
         finally:
-            cursor.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
             conn.close()
 
     @contextmanager
     def transaction(self):
         """Provide transactional scope with connection pooling"""
-        conn = self._pool.get_connection()
+        if self._pool is None:
+            raise RuntimeError("Database connection pool is not initialized.")
+        conn = self._pool.get_connection()  # it might throw if the _pool is None and not initilized.
         cursor = None
         try:
             cursor = conn.cursor()
