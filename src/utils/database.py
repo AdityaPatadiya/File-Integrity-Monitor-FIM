@@ -138,7 +138,6 @@ class database_operation:
                 cursor.close()
             if conn:
                 conn.close()
-            conn.close()
 
     @contextmanager
     def transaction(self):
