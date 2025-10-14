@@ -1,22 +1,20 @@
 import getpass
 import hashlib
-import logging
 import mysql.connector
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+from config.logging_config import configure_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s'
-)
+load_dotenv()
 
 
 class Authentication:
     def __init__(self):
         self.conn = None
         self.cursor = None
+        self.logger_config = configure_logger()
+        self.db_logger = self.logger_config._setup_logger("Authentication")
         self.create_database_if_not_exists()
         self.connect_to_db()
         self.create_user_table()
@@ -34,11 +32,11 @@ class Authentication:
             db_name = os.getenv('AUTH_DB_NAME')
 
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
-            logging.info(f"Database '{db_name}' verified or created.")
+            self.db_logger.info(f"Database '{db_name}' verified or created.")
             cursor.close()
             cnx.close()
         except mysql.connector.Error as err:
-            logging.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
+            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
             raise
 
     def connect_to_db(self):

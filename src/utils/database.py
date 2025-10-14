@@ -1,6 +1,5 @@
 from mysql.connector import pooling, Error as MySQLerror
 import mysql.connector
-import logging
 import os
 from contextlib import contextmanager
 from typing import Dict, List, Tuple
@@ -10,27 +9,17 @@ from config.logging_config import configure_logger
 
 load_dotenv()
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s'
-)
-
 
 class database_operation:
     def __init__(self) -> None:
-        self.logger_cfg = configure_logger()
-        self.db_logger = self.logger_cfg._get_global_logger("database")
+        if hasattr(self, "_initialized") and self._initialized:
+            return  # Already initialized, skip
+        self.logger_config = configure_logger()
+        self.db_logger = self.logger_config._setup_logger("database")
+        self._initialize_pool()
+        self._initialize_schema()
+        self._initialized = True
 
-    _instance = None
-    _pool = None
-
-    def __new__(cls):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialize_pool()
-            cls._instance._initialize_schema()
-        return cls._instance
-    
     def create_database_if_not_exists(self):
         try:
             temp_config = {
@@ -44,11 +33,11 @@ class database_operation:
             db_name = os.getenv('DB_NAME')
 
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
-            self.db_logger.info(f"Database '{db_name}' verified or created.")
+            self.db_logger.info(f"Database '{db_name}' verified or created.") if self.db_logger is not None else "db_logger is not initialized"
             cursor.close()
             cnx.close()
         except MySQLerror as err:
-            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
+            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}") if self.db_logger is not None else "db_logger is not initialized"
             raise
 
     def _initialize_pool(self):
@@ -80,7 +69,7 @@ class database_operation:
                 test_conn.close()
 
         except MySQLerror as e:
-            self.db_logger.error(f"Database connection failed: {e}")
+            self.db_logger.error(f"Database connection failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
             raise
 
     def _initialize_schema(self):
@@ -138,7 +127,7 @@ class database_operation:
             conn.commit()
         except MySQLerror as e:
             conn.rollback()
-            self.db_logger.error(f"Schema initialization failed: {e}")
+            self.db_logger.error(f"Schema initialization failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
         finally:
             if cursor:
                 cursor.close()
@@ -158,7 +147,7 @@ class database_operation:
             conn.commit()
         except Exception as e:
             conn.rollback()
-            self.db_logger.error(f"Transaction failed: {e}")
+            self.db_logger.error(f"Transaction failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
             raise
         finally:
             if cursor:

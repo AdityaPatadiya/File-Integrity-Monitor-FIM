@@ -34,6 +34,39 @@ class configure_logger:
         basename = os.path.basename(os.path.normpath(directory))
         return re.sub(r'[\\/*?:"<>|]', '_', basename).strip('_')
 
+    def _setup_logger(self, name, username=None):
+        """Setup a dedicated logger for database operation"""
+        self.logger = self._get_global_logger(f"{name}", username)
+        return self.logger
+
+    def _get_global_logger(self, name, username=None):
+        """
+        Get or create a global logger for DB, Backup, Authentication
+        """
+        if name is self.loggers:
+            return self.loggers[name]
+
+        logger = logging.getLogger(f"FIM_{name}")
+
+        if not logger.handlers:
+            log_file = os.path.join(self.logs_dir, f"{name}.log")
+
+            handler = logging.FileHandler(log_file, encoding='utf-8')
+            handler.setFormatter(logging.Formatter(
+                "%(asctime)s | %(levelname)s | %(username)s | %(message)s",
+                datefmt=timezone()[0]
+            ))
+
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+            logger.propagate = False
+            logger.addFilter(UsernameFilter(username))
+
+            logger.info(f"Initialized {name} logging")
+
+        self.loggers[name] = logger
+        return logger
+
     def _get_or_create_logger(self, username, directory, file_name=None):
         """
         Get or create a configured logger for the directory
@@ -73,33 +106,6 @@ class configure_logger:
         self.loggers[normalized_dir] = logger
         return logger
 
-    def _get_global_logger(self, name, username=None):
-        """
-        Get or create a global logger for DB, Backup, Authentication
-        """
-        if name is self.loggers:
-            return self.loggers[name]
-
-        logger = logging.getLogger(f"FIM_{name}")
-
-        if not logger.handlers:
-            log_file = os.path.join(self.logs_dir, f"{name}.log")
-
-            handler = logging.FileHandler(log_file, encoding='utf-8')
-            handler.setFormatter(logging.Formatter(
-                "%(asctime)s | %(levelname)s | %(username)s | %(message)s",
-                datefmt=timezone()[0]
-            ))
-
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
-            logger.propagate = False
-            logger.addFilter(UsernameFilter(username))
-
-            logger.info(f"Initialized {name} logging")
-
-        self.loggers[name] = logger
-        return logger
 
     def shutdown(self):
         """Safely close all logging resources"""
