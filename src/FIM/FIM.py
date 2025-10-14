@@ -30,10 +30,10 @@ class FIMEventHandler(FileSystemEventHandler):
         try:
             _path = event.src_path
             if event.is_directory:
-                current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
+                current_hash = self.parent.fim_instance.calculate_folder_hash(_path if isinstance(_path, str) else str(_path))
                 is_file = False
             else:
-                current_hash = self.parent.fim_instance.calculate_hash(_path)
+                current_hash = self.parent.fim_instance.calculate_hash(_path if isinstance(_path, str) else str(_path))
                 is_file = True
 
             self.parent.file_folder_addition(_path, current_hash, is_file, self.logger)
@@ -45,13 +45,15 @@ class FIMEventHandler(FileSystemEventHandler):
             _path = event.src_path
 
             if event.is_directory:
-                current_hash = self.parent.fim_instance.calculate_folder_hash(_path)
+                current_hash = self.parent.fim_instance.calculate_folder_hash(_path if isinstance(_path, str) else str(_path))
                 is_file = False
             else:
-                current_hash = self.parent.fim_instance.calculate_hash(_path)
+                current_hash = self.parent.fim_instance.calculate_hash(_path if isinstance(_path, str) else str(_path))
                 is_file = True
 
-            original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
+            dir_path = str(self._get_directory_path(_path))
+            file_path = str(_path)
+            original_hash = self.parent.database_instance.get_current_baseline(dir_path).get(file_path, {}).get('hash', '')
             self.parent.file_folder_modification(_path, current_hash, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Modification error: {str(e)}")
@@ -63,7 +65,9 @@ class FIMEventHandler(FileSystemEventHandler):
                 is_file = False
             else:
                 is_file = True
-            original_hash = self.parent.database_instance.get_current_baseline(self._get_directory_path(_path)).get(_path, {}).get('hash', '')
+            dir_path = str(self._get_directory_path(_path))
+            file_path = str(_path)
+            original_hash = self.parent.database_instance.get_current_baseline(dir_path).get(file_path, {}).get('hash', '')
             self.parent.file_folder_deletion(_path, original_hash, is_file, self.logger)
         except Exception as e:
             self.logger.error(f"Deletion error: {str(e)}")
@@ -73,19 +77,23 @@ class monitor_changes:
     def __init__(self):
         self.logs_dir = Path(__file__).resolve().parent.parent / "../logs"
         self.logs_dir.mkdir(exist_ok=True, parents=True)
+
+        # Persistent state
         self.reported_changes = {
             "added": {},
             "modified": {},
             "deleted": {},
         }
+        self.current_directories = []
+        self.event_handlers = []
+        self.current_logger = None
+
+        # Core Components
+        self.observer = Observer()
         self.backup_instance = Backup()
         self.fim_instance = FIM_monitor()
         self.database_instance = database_operation()
         self.configure_logger = configure_logger()
-        self.observer = Observer()
-        self.current_logger = None
-        self.current_directories = []
-        self.event_handlers = []
 
     def file_folder_addition(self, _path, current_hash, is_file, logger):
         change_type = "File" if is_file else "Folder"
@@ -123,7 +131,7 @@ class monitor_changes:
         change_type = "File" if is_file else "Folder"
 
         if _path not in self.reported_changes["deleted"]:
-            last_modified = self.database_instance.get_current_baseline(_path).get('last_modified', 'N/A')
+            last_modified = self.database_instance.get_current_baseline(_path).get('last_modified', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             logger.warning(f"{change_type} deleted: {_path}")
             self.reported_changes["deleted"][_path] = {
                 "hash": original_hash,
@@ -212,10 +220,10 @@ class monitor_changes:
                 baseline = self.database_instance.get_current_baseline(directory)
 
                 class DateTimeEncoder(json.JSONEncoder):
-                    def default(self, obj):
-                        if isinstance(obj, datetime):
-                            return obj.strftime("%Y-%m-%d %H:%M:%S")
-                        return super().default(obj)
+                    def default(self, o):
+                        if isinstance(o, datetime):
+                            return o.strftime("%Y-%m-%d %H:%M:%S")
+                        return super().default(o)
 
                 print(json.dumps(baseline, indent=4, cls=DateTimeEncoder))
 

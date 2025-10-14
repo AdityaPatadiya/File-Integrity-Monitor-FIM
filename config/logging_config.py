@@ -73,6 +73,34 @@ class configure_logger:
         self.loggers[normalized_dir] = logger
         return logger
 
+    def _get_global_logger(self, name, username=None):
+        """
+        Get or create a global logger for DB, Backup, Authentication
+        """
+        if name is self.loggers:
+            return self.loggers[name]
+
+        logger = logging.getLogger(f"FIM_{name}")
+
+        if not logger.handlers:
+            log_file = os.path.join(self.logs_dir, f"{name}.log")
+
+            handler = logging.FileHandler(log_file, encoding='utf-8')
+            handler.setFormatter(logging.Formatter(
+                "%(asctime)s | %(levelname)s | %(username)s | %(message)s",
+                datefmt=timezone()[0]
+            ))
+
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+            logger.propagate = False
+            logger.addFilter(UsernameFilter(username))
+
+            logger.info(f"Initialized {name} logging")
+
+        self.loggers[name] = logger
+        return logger
+
     def shutdown(self):
         """Safely close all logging resources"""
         for logger in self.loggers.values():

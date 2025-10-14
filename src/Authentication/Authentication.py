@@ -57,6 +57,9 @@ class Authentication:
 
     def create_user_table(self):
         """Create users table if not exists"""
+        if self.cursor is None or self.conn is None:
+            print("Database connection or cursor is not initialized. Table creation aborted.")
+            exit(1)
         try:
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
@@ -77,6 +80,9 @@ class Authentication:
 
     def register_new_user(self):
         """Register new user with validation"""
+        if self.cursor is None or self.conn is None:
+            print("Database connection or cursor is not initialized. Table creation aborted.")
+            exit(1)
         username = input("Enter new username: ").strip()
         if not username:
             print("Username cannot be empty")
@@ -98,12 +104,16 @@ class Authentication:
             print("User registered successfully")
             return username
         except mysql.connector.IntegrityError:
-            print("Username already exists")
+            print("Username already exists. Try to Log In!!\n")
+            self.login_existing_user()
         except mysql.connector.Error as err:
             print(f"Registration failed: {err}")
 
     def login_existing_user(self):
         """Authenticate existing user"""
+        if self.cursor is None:
+            print("Database connection or cursor is not initialized. Table creation aborted.")
+            exit(1)
         username = input("Enter username: ").strip()
         password = getpass.getpass("Enter password: ")
         hashed_password = self.hash_password(password)

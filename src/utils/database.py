@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from typing import Dict, List, Tuple
 from dotenv import load_dotenv
 
+from config.logging_config import configure_logger
+
 load_dotenv()
 
 logging.basicConfig(
@@ -15,6 +17,10 @@ logging.basicConfig(
 
 
 class database_operation:
+    def __init__(self) -> None:
+        self.logger_cfg = configure_logger()
+        self.db_logger = self.logger_cfg._get_global_logger("database")
+
     _instance = None
     _pool = None
 
@@ -38,11 +44,11 @@ class database_operation:
             db_name = os.getenv('DB_NAME')
 
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
-            logging.info(f"Database '{db_name}' verified or created.")
+            self.db_logger.info(f"Database '{db_name}' verified or created.")
             cursor.close()
             cnx.close()
         except MySQLerror as err:
-            logging.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
+            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
             raise
 
     def _initialize_pool(self):
@@ -74,7 +80,7 @@ class database_operation:
                 test_conn.close()
 
         except MySQLerror as e:
-            logging.error(f"Database connection failed: {e}")
+            self.db_logger.error(f"Database connection failed: {e}")
             raise
 
     def _initialize_schema(self):
@@ -132,7 +138,7 @@ class database_operation:
             conn.commit()
         except MySQLerror as e:
             conn.rollback()
-            logging.error(f"Schema initialization failed: {e}")
+            self.db_logger.error(f"Schema initialization failed: {e}")
         finally:
             if cursor:
                 cursor.close()
@@ -152,7 +158,7 @@ class database_operation:
             conn.commit()
         except Exception as e:
             conn.rollback()
-            logging.error(f"Transaction failed: {e}")
+            self.db_logger.error(f"Transaction failed: {e}")
             raise
         finally:
             if cursor:

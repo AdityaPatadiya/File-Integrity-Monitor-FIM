@@ -15,6 +15,9 @@ class FIM_monitor:
         self.current_entries: Dict[str, Dict[str, Any]] = {}
         self.configure_logger = configure_logger()
         self.logger = None
+        self.file_hash = None
+        self.folder_hash = None
+        self.last_modified = None
 
     def get_formatted_time(self, timestamp: float) -> str:
         """Convert a timestamp to a readable format."""
@@ -30,49 +33,49 @@ class FIM_monitor:
 
         for root, dirs, files in os.walk(directory):
             for folder in dirs:
-                folder_path = os.path.join(root, folder)
+                self.folder_path = os.path.join(root, folder)
                 try:
-                    folder_hash = self.calculate_folder_hash(folder_path)
-                    last_modified = self.get_formatted_time(os.path.getmtime(folder_path))
+                    self.folder_hash = self.calculate_folder_hash(self.folder_path)
+                    self.last_modified = self.get_formatted_time(os.path.getmtime(self.folder_path))
                 except Exception as e:
                     print(f"Error processing folder: {e}")
 
-                self.current_entries[folder_path] = {
+                self.current_entries[self.folder_path] = {
                     "type": "folder",
-                    "hash": folder_hash,
-                    "last_modified": last_modified,
+                    "hash": self.folder_hash,
+                    "last_modified": self.last_modified,
                 }
 
                 # Store in database
                 self.database_instance.record_file_event(
                     directory_path=directory,
-                    file_path=folder_path,
-                    file_hash=folder_hash,
-                    last_modified=last_modified,
+                    file_path=self.folder_path,
+                    file_hash=self.folder_hash if self.folder_hash is not None else "folder_hash is None",
+                    last_modified=self.last_modified if self.last_modified is not None else "last_modified time is None",
                     status='current'
                 )
 
             for file in files:
-                file_path = os.path.join(root, file)
+                self.file_path = os.path.join(root, file)
                 try:
-                    file_hash = self.calculate_hash(file_path)
-                    last_modified = self.get_formatted_time(os.path.getmtime(file_path))
+                    self.file_hash = self.calculate_hash(self.file_path)
+                    self.last_modified = self.get_formatted_time(os.path.getmtime(self.file_path))
                 except Exception as e:
                     print(f"Error processing file: {e}")
 
-                self.current_entries[file_path] = {
+                self.current_entries[self.file_path] = {
                     "type": "file",
-                    "hash": file_hash,
-                    "size": os.path.getsize(file_path),
-                    "last_modified": last_modified,
+                    "hash": self.file_hash,
+                    "size": os.path.getsize(self.file_path),
+                    "last_modified": self.last_modified,
                 }
 
                 # Store in database
                 self.database_instance.record_file_event(
                     directory_path=directory,
-                    file_path=file_path,
-                    file_hash=file_hash,
-                    last_modified=last_modified,
+                    file_path=self.file_path,
+                    file_hash=self.file_hash if self.file_hash else "",
+                    last_modified=self.last_modified if self.last_modified else "",
                     status='current'
                 )
 
@@ -88,7 +91,10 @@ class FIM_monitor:
                 sha256.update(os.path.basename(file_path).encode())
             return sha256.hexdigest()
         except (IsADirectoryError, FileNotFoundError, PermissionError) as e:
-            self.logger.error(f"Error calculating hash for {file_path}: {str(e)}")
+            if self.logger is not None:
+                self.logger.error(f"Error calculating hash for {file_path}: {str(e)}")
+            else:
+                print(f"Logger is None. Error calculating hash for {file_path}: {str(e)}")
             return None
 
     def calculate_folder_hash(self, folder_path: str) -> str:
@@ -102,10 +108,10 @@ class FIM_monitor:
         for entry in entries:
             sha256.update(entry.name.encode())
             if entry.is_dir():
-                subfolder_hash = self.calculate_folder_hash(entry)
+                subfolder_hash = self.calculate_folder_hash(str(entry))
                 sha256.update(subfolder_hash.encode())
             elif entry.is_file():
-                file_hash = self.calculate_hash(entry)
+                file_hash = self.calculate_hash(str(entry))
                 if file_hash:
                     sha256.update(file_hash.encode())
         
