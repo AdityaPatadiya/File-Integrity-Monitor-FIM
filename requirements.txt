@@ -7,3 +7,9 @@ python-dotenv==1.1.0
 flask==3.0.2
 PyJWT>=2.0
 requests>=2.0
+# Web API framework and ASGI server
+fastapi
+# Use the [standard] extras for better performance (uvloop, httptools, etc.)
+uvicorn[standard]
+SQLAlchemy
+pymysql

@@ -1,69 +1,29 @@
-from flask import Blueprint, request, jsonify, current_app
-from src.api.utils.jwt_utils import create_token, auth_required
-import importlib
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from src.api.schemas.user_schema import UserCreate, UserLogin, UserResponse
+from src.api.database.connection import SessionLocal
+from src.api.services.auth_service import register_user, login_user
+from src.api.utils.jwt_utils import verify_token
+from src.api.models.user_model import User
 
-auth_bp = Blueprint("auth_bp", __name__)
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-# Try to import your existing Authentication class
-Auth = None
-try:
-    auth_mod = importlib.import_module("src.Authentication.Authentication")
-    # common names: Authentication, Auth, auth
-    Auth = getattr(auth_mod, "Authentication", None) or getattr(auth_mod, "Auth", None) or getattr(auth_mod, "auth", None)
-except Exception:
-    Auth = None
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-_auth_instance = Auth() if Auth else None
+@router.post("/register", response_model=UserResponse)
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    return register_user(db, user.username, user.email, user.password)
 
-@auth_bp.route("/register", methods=["POST"])
-def register():
-    data = request.json or {}
-    username = data.get("username")
-    password = data.get("password")
-    # If your Authentication class has a register/create_user method, call it
-    if _auth_instance:
-        for fn_name in ("register", "create_user", "add_user"):
-            fn = getattr(_auth_instance, fn_name, None)
-            if callable(fn):
-                result = fn(username, password)
-                return jsonify({"ok": True, "result": result}), 201
-    # fallback: echo
-    return jsonify({"error": "Registration not implemented in Authentication module"}), 501
+@router.post("/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    return login_user(db, user.email, user.password)
 
-@auth_bp.route("/login", methods=["POST"])
-def login():
-    data = request.json or {}
-    username = data.get("username")
-    password = data.get("password")
-    user_obj = None
-
-    if _auth_instance:
-        # try common login functions
-        for fn_name in ("login", "authenticate", "verify"):
-            fn = getattr(_auth_instance, fn_name, None)
-            if callable(fn):
-                try:
-                    user_obj = fn(username, password)
-                    break
-                except TypeError:
-                    # maybe function signature differs; try other fn
-                    continue
-
-    if not user_obj:
-        # fallback: simple check (for demo only)
-        if username == "admin" and password == "admin":
-            user_obj = {"username": "admin", "role": "Admin"}
-        else:
-            return jsonify({"error": "Invalid credentials"}), 401
-
-    # user_obj expected to be a dict-like with at least 'username' and 'role'
-    role = user_obj.get("role", "Admin")
-    payload = {"username": user_obj.get("username"), "role": role}
-    token = create_token(payload)
-    return jsonify({"token": token, "user": payload})
-
-@auth_bp.route("/me", methods=["GET"])
-@auth_required
-def me():
-    # request.user injected by decorator
-    return jsonify({"user": request.user})
+@router.get("/me", response_model=UserResponse)
+def get_me(token_data: dict = Depends(verify_token), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == token_data["sub"]).first()
+    return user
