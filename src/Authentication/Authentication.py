@@ -62,6 +62,7 @@ class Authentication:
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     username VARCHAR(255) PRIMARY KEY,
+                    email VARCHAR(255) UNIQUE,
                     password CHAR(64) NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
@@ -86,6 +87,11 @@ class Authentication:
             print("Username cannot be empty")
             return
 
+        email = input("Enter the email: ").strip()
+        if not email:
+            print("Email cannot be empty.")
+            return
+
         password = getpass.getpass("Enter new password: ")
         if len(password) < 8:
             print("Password must be at least 8 characters")
@@ -95,31 +101,32 @@ class Authentication:
 
         try:
             self.cursor.execute(
-                'INSERT INTO users (username, password) VALUES (%s, %s)',
-                (username, hashed_password)
+                'INSERT INTO users (username, email, password) VALUES (%s, %s, %s)',
+                (username, email, hashed_password)
             )
             self.conn.commit()
             print("User registered successfully")
             return username
         except mysql.connector.IntegrityError:
-            print("Username already exists. Try to Log In!!\n")
+            print("Username already exists. Try to Log In!! or use different username!!\n")
             self.login_existing_user()
         except mysql.connector.Error as err:
             print(f"Registration failed: {err}")
+            return
 
     def login_existing_user(self):
         """Authenticate existing user"""
         if self.cursor is None:
             print("Database connection or cursor is not initialized. Table creation aborted.")
             exit(1)
-        username = input("Enter username: ").strip()
+        email = input("Enter email: ").strip()
         password = getpass.getpass("Enter password: ")
         hashed_password = self.hash_password(password)
 
         try:
             self.cursor.execute(
-                'SELECT username FROM users WHERE username = %s AND password = %s',
-                (username, hashed_password)
+                'SELECT email FROM users WHERE email = %s AND password = %s',
+                (email, hashed_password)
             )
             user = self.cursor.fetchone()
             if user:
@@ -127,7 +134,7 @@ class Authentication:
             else:
                 print("Access denied")
                 exit(1)
-            return username
+            return email
         except mysql.connector.Error as err:
             print(f"Login error: {err}")
             exit(1)
