@@ -1,39 +1,64 @@
-# src/api/database/connection.py
+"""
+connection.py
+--------------
+Handles database connections for both authentication (auth_db)
+and File Integrity Monitoring (fim_db) databases using SQLAlchemy ORM.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
+# Load environment variables from .env
 load_dotenv()
 
-# Get the database URL from .env
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Fetch database URLs
+AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL")  # Example: mysql+pymysql://user:pass@localhost/fim_db
+FIM_DATABASE_URL = os.getenv("FIM_DATABASE_URL")    # Example: mysql+pymysql://user:pass@localhost/fin_db
 
-if not DATABASE_URL:
-    raise ValueError("❌ DATABASE_URL not found in environment variables.")
+# --- Validate environment variables ---
+if not AUTH_DATABASE_URL:
+    raise RuntimeError("❌ Missing AUTH_DATABASE_URL in .env file")
 
-# Create the SQLAlchemy engine
-engine = create_engine(DATABASE_URL, echo=True)
+if not FIM_DATABASE_URL:
+    raise RuntimeError("❌ Missing FIM_DATABASE_URL in .env file")
 
-# Session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# --- Create SQLAlchemy engines ---
+auth_engine = create_engine(AUTH_DATABASE_URL, echo=False, pool_pre_ping=True)
+fim_engine = create_engine(FIM_DATABASE_URL, echo=False, pool_pre_ping=True)
 
-# Base model class
-Base = declarative_base()
+# --- Define separate Base classes for ORM models ---
+AuthBase = declarative_base()
+FimBase = declarative_base()
 
-# Dependency for FastAPI routes
-def get_db():
-    db = SessionLocal()
+# --- Create SessionLocal factories ---
+AuthSessionLocal = sessionmaker(bind=auth_engine, autoflush=False, autocommit=False)
+FimSessionLocal = sessionmaker(bind=fim_engine, autoflush=False, autocommit=False)
+
+# --- Dependency functions for FastAPI or scripts ---
+def get_auth_db():
+    """Yields a session connected to the authentication database."""
+    db = AuthSessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-# Optional: test connection
-if __name__ == "__main__":
+
+def get_fim_db():
+    """Yields a session connected to the FIM database."""
+    db = FimSessionLocal()
     try:
-        with engine.connect() as conn:
-            print("✅ Database connection successful!")
-    except Exception as e:
-        print(f"❌ Database connection failed: {e}")
+        yield db
+    finally:
+        db.close()
+
+
+# --- Optional: Initialize databases (for first-time table creation) ---
+def init_databases():
+    """Create all tables in both auth_db and fim_db if they don't exist."""
+    print("✅ Initializing databases...")
+    AuthBase.metadata.create_all(bind=auth_engine)
+    FimBase.metadata.create_all(bind=fim_engine)
+    print("✅ Databases are ready.")

@@ -1,261 +1,180 @@
-from mysql.connector import pooling, Error as MySQLerror
-import mysql.connector
-import os
-from contextlib import contextmanager
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
 from typing import Dict, List, Tuple
-from dotenv import load_dotenv
 
-from config.logging_config import configure_logger
-
-load_dotenv()
+from src.api.database.connection import FimSessionLocal
+from src.api.models.fim_models import Directory, FileMetadata
 
 
-class database_operation:
-    def __init__(self) -> None:
-        if hasattr(self, "_initialized") and self._initialized:
-            return  # Already initialized, skip
-        self.logger_config = configure_logger()
-        self.db_logger = self.logger_config._setup_logger("database")
-        self._initialize_pool()
-        self._initialize_schema()
-        self._initialized = True
+class DatabaseOperation:
+    """Handles all database interactions using SQLAlchemy ORM."""
 
-    def create_database_if_not_exists(self):
+    def __init__(self):
+        self.db: Session = FimSessionLocal()
+
+    def _commit(self):
+        """Commit the transaction safely."""
         try:
-            temp_config = {
-                "host": os.getenv('DB_HOST'),
-                "user": os.getenv('DB_USER'),
-                "password": os.getenv('DB_PASSWORD'),
-            }
+            self.db.commit()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Database commit failed: {e}")
 
-            cnx = mysql.connector.connect(**temp_config)
-            cursor = cnx.cursor()
-            db_name = os.getenv('DB_NAME')
-
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
-            self.db_logger.info(f"Database '{db_name}' verified or created.") if self.db_logger is not None else "db_logger is not initialized"
-            cursor.close()
-            cnx.close()
-        except MySQLerror as err:
-            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}") if self.db_logger is not None else "db_logger is not initialized"
-            raise
-
-    def _initialize_pool(self):
-        """Initialize MySQL connection pool with environment variables"""
-        cursor = None
-        try:
-            self.create_database_if_not_exists()
-            self._pool = pooling.MySQLConnectionPool(
-                pool_name="fim_pool",
-                pool_size=int(os.getenv('DB_POOL_SIZE', '32')),
-                host=os.getenv('DB_HOST'),
-                database=os.getenv('DB_NAME'),
-                user=os.getenv('DB_USER'),
-                password=os.getenv('DB_PASSWORD'),
-                autocommit=False,
-                sql_mode='TRADITIONAL',
-                charset='utf8mb4',
-                collation='utf8mb4_bin',
-            )
-            # Test connection
-            test_conn = self._pool.get_connection()
-            try:
-                cursor = test_conn.cursor()
-                cursor.execute("SELECT 1")
-                cursor.fetchall()  # Consume results
-            finally:
-                if cursor:
-                    cursor.close()
-                test_conn.close()
-
-        except MySQLerror as e:
-            self.db_logger.error(f"Database connection failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
-            raise
-
-    def _initialize_schema(self):
-        """Initialize database schema with proper error handling"""
-        if self._pool is None:
-            raise RuntimeError("Database connection pool is not initialized.")
-        if self._pool is None:
-            raise RuntimeError("Database connection pool is not initialized.")
-        conn = self._pool.get_connection()
-        cursor = None
-        try:
-            cursor = conn.cursor()
-            # Create tables
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS directories (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    path VARCHAR(512) UNIQUE NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-            ''')
-
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS file_metadata (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    directory_id INT NOT NULL,
-                    file_path VARCHAR(512) NOT NULL,
-                    hash VARCHAR(64) NOT NULL,
-                    last_modified DATETIME NOT NULL,
-                    status ENUM('added', 'modified', 'deleted', 'current') NOT NULL,
-                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (directory_id) REFERENCES directories(id),
-                    UNIQUE KEY (directory_id, file_path(255))
-                ) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-            ''')
-
-            # Create indexes with error handling
-            try:
-                cursor.execute('''
-                    CREATE INDEX idx_file_path 
-                    ON file_metadata(file_path(255))
-                ''')
-            except MySQLerror as err:
-                if err.errno != 1061:  # Duplicate key error
-                    raise
-
-            try:
-                cursor.execute('''
-                    CREATE INDEX idx_status 
-                    ON file_metadata(status)
-                ''')
-            except MySQLerror as err:
-                if err.errno != 1061:
-                    raise
-
-            conn.commit()
-        except MySQLerror as e:
-            conn.rollback()
-            self.db_logger.error(f"Schema initialization failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
-
-    @contextmanager
-    def transaction(self):
-        """Provide transactional scope with connection pooling"""
-        if self._pool is None:
-            raise RuntimeError("Database connection pool is not initialized.")
-        conn = self._pool.get_connection()  # it might throw if the _pool is None and not initilized.
-        cursor = None
-        try:
-            cursor = conn.cursor()
-            yield cursor
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            self.db_logger.error(f"Transaction failed: {e}") if self.db_logger is not None else "db_logger is not initialized"
-            raise
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
+    # ------------------ Directory Operations ------------------
 
     def get_or_create_directory(self, directory_path: str) -> int:
-        """Get or create directory entry, returns directory ID"""
-        with self.transaction() as cursor:
-            cursor.execute(
-                'INSERT IGNORE INTO directories (path) VALUES (%s)',
-                (directory_path,)
-            )
-            cursor.execute(
-                'SELECT id FROM directories WHERE path = %s',
-                (directory_path,)
-            )
-            return cursor.fetchone()[0]
+        """Get or create a directory record, return its ID."""
+        try:
+            directory = self.db.query(Directory).filter_by(path=directory_path).first()
+            if not directory:
+                directory = Directory(path=directory_path)
+                self.db.add(directory)
+                self._commit()
+            return directory.id
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error in get_or_create_directory: {e}")
 
-    def record_file_event(self, directory_path: str, file_path: str, 
-                        file_hash: str, last_modified: str, status: str):
-        """Record file event with proper transaction handling"""
-        with self.transaction() as cursor:
+    def get_all_monitored_directories(self) -> List[str]:
+        """Return a list of all monitored directory paths."""
+        try:
+            directories = self.db.query(Directory.path).all()
+            return [d[0] for d in directories]
+        except SQLAlchemyError as e:
+            raise RuntimeError(f"Error fetching monitored directories: {e}")
+
+    def delete_directory_records(self, directory_path: str):
+        """Completely delete a directory and its related file metadata."""
+        try:
+            directory = self.db.query(Directory).filter_by(path=directory_path).first()
+            if directory:
+                self.db.delete(directory)
+                self._commit()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error deleting directory: {e}")
+
+    # ------------------ File Metadata Operations ------------------
+
+    def record_file_event(
+        self,
+        directory_path: str,
+        file_path: str,
+        file_hash: str,
+        last_modified: str,
+        status: str,
+    ):
+        """Insert or update a file event."""
+        try:
             dir_id = self.get_or_create_directory(directory_path)
-            cursor.execute('''
-                INSERT INTO file_metadata 
-                (directory_id, file_path, hash, last_modified, status)
-                VALUES (%s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                    hash = VALUES(hash),
-                    last_modified = VALUES(last_modified),
-                    status = VALUES(status)
-            ''', (dir_id, file_path, file_hash, last_modified, status))
+            file_entry = (
+                self.db.query(FileMetadata)
+                .filter_by(directory_id=dir_id, file_path=file_path)
+                .first()
+            )
+
+            if file_entry:
+                file_entry.hash = file_hash
+                file_entry.last_modified = last_modified
+                file_entry.status = status
+            else:
+                new_entry = FileMetadata(
+                    directory_id=dir_id,
+                    file_path=file_path,
+                    hash=file_hash,
+                    last_modified=last_modified,
+                    status=status,
+                )
+                self.db.add(new_entry)
+
+            self._commit()
+
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error recording file event: {e}")
 
     def get_current_baseline(self, directory_path: str) -> Dict[str, dict]:
-        """Get current baseline for a directory"""
-        with self.transaction() as cursor:
-            cursor.execute('''
-                SELECT f.file_path, f.hash, f.last_modified
-                FROM file_metadata f
-                JOIN directories d ON f.directory_id = d.id
-                WHERE d.path = %s AND f.status = 'current'
-            ''', (directory_path,))
-            return {
-                row[0]: {'hash': row[1], 'last_modified': row[2]}
-                for row in cursor.fetchall()
-            }
+        """Fetch baseline (current) files for a directory."""
+        try:
+            result = (
+                self.db.query(FileMetadata.file_path, FileMetadata.hash, FileMetadata.last_modified)
+                .join(Directory)
+                .filter(Directory.path == directory_path, FileMetadata.status == "current")
+                .all()
+            )
 
-    def get_all_monitored_directories(self):
-        """Get all directories with baseline data"""
-        with self.transaction() as cursor:
-            cursor.execute("SELECT DISTINCT path FROM directories")
-            return [row[0] for row in cursor.fetchall()]
+            return {
+                row[0]: {"hash": row[1], "last_modified": row[2]}
+                for row in result
+            }
+        except SQLAlchemyError as e:
+            raise RuntimeError(f"Error fetching current baseline: {e}")
 
     def get_file_history(self, file_path: str, limit: int = 10) -> List[Tuple]:
-        """Get historical changes for a specific file"""
-        with self.transaction() as cursor:
-            cursor.execute('''
-                SELECT d.path, f.hash, f.last_modified, f.status, f.detected_at
-                FROM file_metadata f
-                JOIN directories d ON f.directory_id = d.id
-                WHERE f.file_path = %s
-                ORDER BY f.detected_at DESC
-                LIMIT %s
-            ''', (file_path, limit))
-            return cursor.fetchall()
+        """Fetch file modification history."""
+        try:
+            result = (
+                self.db.query(
+                    Directory.path,
+                    FileMetadata.hash,
+                    FileMetadata.last_modified,
+                    FileMetadata.status,
+                    FileMetadata.detected_at,
+                )
+                .join(Directory)
+                .filter(FileMetadata.file_path == file_path)
+                .order_by(FileMetadata.detected_at.desc())
+                .limit(limit)
+                .all()
+            )
+            return result
+        except SQLAlchemyError as e:
+            raise RuntimeError(f"Error fetching file history: {e}")
 
-    def update_file_hash(self, file_path: str, new_hash: str, 
-                       last_modified: str, status: str = 'modified'):
-        """Update existing file entry"""
-        with self.transaction() as cursor:
-            cursor.execute('''
-                UPDATE file_metadata
-                SET hash = %s, last_modified = %s, status = %s
-                WHERE file_path = %s
-            ''', (new_hash, last_modified, status, file_path))
+    def update_file_hash(
+        self, file_path: str, new_hash: str, last_modified: str, status: str = "modified"
+    ):
+        """Update hash and status for a file."""
+        try:
+            file_entry = self.db.query(FileMetadata).filter_by(file_path=file_path).first()
+            if file_entry:
+                file_entry.hash = new_hash
+                file_entry.last_modified = last_modified
+                file_entry.status = status
+                self._commit()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error updating file hash: {e}")
 
     def delete_file_record(self, file_path: str):
-        """Mark file as deleted in database"""
-        with self.transaction() as cursor:
-            cursor.execute('''
-                UPDATE file_metadata
-                SET status = 'deleted', detected_at = CURRENT_TIMESTAMP
-                WHERE file_path = %s
-            ''', (file_path,))
-    
-    def delete_directory_records(self, directory_path: str):
-        """Delete all records for a directory"""
-        with self.transaction() as cursor:
-            cursor.execute('''
-                DELETE FROM file_metadata
-                WHERE directory_id IN (
-                    SELECT id FROM directories WHERE path = %s
-                )
-            ''', (directory_path,))
-            cursor.execute('''
-                DELETE FROM directories WHERE path = %s
-            ''', (directory_path,))
+        """Mark file as deleted."""
+        try:
+            file_entry = self.db.query(FileMetadata).filter_by(file_path=file_path).first()
+            if file_entry:
+                file_entry.status = "deleted"
+                file_entry.detected_at = datetime.utcnow()
+                self._commit()
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise RuntimeError(f"Error deleting file record: {e}")
 
     def get_recent_changes(self, hours: int = 24) -> List[Tuple]:
-        """Get recent changes across all directories"""
-        with self.transaction() as cursor:
-            cursor.execute('''
+        """Fetch recent file changes."""
+        try:
+            from sqlalchemy import text
+            query = text(f"""
                 SELECT d.path, f.file_path, f.status, f.detected_at
                 FROM file_metadata f
                 JOIN directories d ON f.directory_id = d.id
-                WHERE f.detected_at >= NOW() - INTERVAL %s HOUR
+                WHERE f.detected_at >= NOW() - INTERVAL {hours} HOUR
                 ORDER BY f.detected_at DESC
-            ''', (hours,))
-            return cursor.fetchall()
+            """)
+            result = self.db.execute(query).fetchall()
+            return result
+        except SQLAlchemyError as e:
+            raise RuntimeError(f"Error fetching recent changes: {e}")
+
+    def __del__(self):
+        """Ensure DB session closes cleanly."""
+        self.db.close()
