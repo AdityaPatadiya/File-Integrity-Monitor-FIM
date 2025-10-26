@@ -7,7 +7,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from src.utils.backup import Backup
-from src.utils.database import database_operation
+from src.utils.database import DatabaseOperation
 from src.FIM.fim_utils import FIM_monitor
 from config.logging_config import configure_logger
 
@@ -92,7 +92,7 @@ class monitor_changes:
         self.observer = Observer()
         self.backup_instance = Backup()
         self.fim_instance = FIM_monitor()
-        self.database_instance = database_operation()
+        self.database_instance = DatabaseOperation()
         self.configure_logger = configure_logger()
 
     def file_folder_addition(self, _path, current_hash, is_file, logger):
@@ -230,20 +230,22 @@ class monitor_changes:
         except Exception as e:
             print(f"Error viewing baseline: {str(e)}")
 
-    def reset_baseline(self,auth_username, directories):
-        """Safely reset baseline with transaction support"""
+    def reset_baseline(self, auth_username: str, directories: list[str]):
+        """Safely reset baseline for specified directories using SQLAlchemy ORM."""
         for directory in directories:
             try:
-                if not Path(directory).exists():
+                dir_path = Path(directory)
+                if not dir_path.exists():
                     print(f"Directory not found: {directory}")
                     continue
 
-                with self.database_instance.transaction() as cursor:
-                    cursor.execute('DELETE FROM file_metadata WHERE file_path = %s', (directory,))
-                    self.fim_instance.tracking_directory(auth_username, directory)
-                    print(f"Reset baseline for {directory}")
+                self.database_instance.delete_directory_records(directory)
+                self.fim_instance.tracking_directory(auth_username, directory)
+
+                print(f"✅ Reset baseline for {directory}")
+
             except Exception as e:
-                print(f"Failed resetting baseline for {directory}: {str(e)}")
+                print(f"❌ Failed resetting baseline for {directory}: {str(e)}")
 
     def view_logs(self, directory=None):
         """View logs safely with path validation"""

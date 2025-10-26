@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, cast
 
 from src.api.database.connection import FimSessionLocal
 from src.api.models.fim_models import Directory, FileMetadata
@@ -31,7 +31,7 @@ class DatabaseOperation:
                 directory = Directory(path=directory_path)
                 self.db.add(directory)
                 self._commit()
-            return directory.id
+            return cast(int, directory.id)
         except SQLAlchemyError as e:
             self.db.rollback()
             raise RuntimeError(f"Error in get_or_create_directory: {e}")
@@ -77,14 +77,14 @@ class DatabaseOperation:
             if file_entry:
                 file_entry.hash = file_hash
                 file_entry.last_modified = last_modified
-                file_entry.status = status
+                file_entry.status = status  # type: ignore[assignment]
             else:
                 new_entry = FileMetadata(
                     directory_id=dir_id,
                     file_path=file_path,
                     hash=file_hash,
                     last_modified=last_modified,
-                    status=status,
+                    status=status,  # type: ignore[arg-type]
                 )
                 self.db.add(new_entry)
 
@@ -141,7 +141,7 @@ class DatabaseOperation:
             if file_entry:
                 file_entry.hash = new_hash
                 file_entry.last_modified = last_modified
-                file_entry.status = status
+                file_entry.status = status  # type: ignore[assignment]
                 self._commit()
         except SQLAlchemyError as e:
             self.db.rollback()
@@ -152,7 +152,7 @@ class DatabaseOperation:
         try:
             file_entry = self.db.query(FileMetadata).filter_by(file_path=file_path).first()
             if file_entry:
-                file_entry.status = "deleted"
+                file_entry.status = "deleted"  # type: ignore[assignment]
                 file_entry.detected_at = datetime.utcnow()
                 self._commit()
         except SQLAlchemyError as e:
@@ -171,7 +171,8 @@ class DatabaseOperation:
                 ORDER BY f.detected_at DESC
             """)
             result = self.db.execute(query).fetchall()
-            return result
+            # convert Sequence[Row[Any]] to List[Tuple] for the annotated return type
+            return [tuple(row) for row in result]
         except SQLAlchemyError as e:
             raise RuntimeError(f"Error fetching recent changes: {e}")
 

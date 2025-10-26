@@ -14,8 +14,8 @@ import os
 load_dotenv()
 
 # Fetch database URLs
-AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL")  # Example: mysql+pymysql://user:pass@localhost/fim_db
-FIM_DATABASE_URL = os.getenv("FIM_DATABASE_URL")    # Example: mysql+pymysql://user:pass@localhost/fin_db
+AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL")
+FIM_DATABASE_URL = os.getenv("FIM_DATABASE_URL")
 
 # --- Validate environment variables ---
 if not AUTH_DATABASE_URL:
@@ -53,12 +53,3 @@ def get_fim_db():
         yield db
     finally:
         db.close()
-
-
-# --- Optional: Initialize databases (for first-time table creation) ---
-def init_databases():
-    """Create all tables in both auth_db and fim_db if they don't exist."""
-    print("✅ Initializing databases...")
-    AuthBase.metadata.create_all(bind=auth_engine)
-    FimBase.metadata.create_all(bind=fim_engine)
-    print("✅ Databases are ready.")
