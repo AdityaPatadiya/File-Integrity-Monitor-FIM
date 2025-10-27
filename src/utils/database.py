@@ -60,8 +60,9 @@ class DatabaseOperation:
     def record_file_event(
         self,
         directory_path: str,
-        file_path: str,
-        file_hash: str,
+        item_path: str,
+        item_hash: str,
+        item_type: str,
         last_modified: str,
         status: str,
     ):
@@ -70,21 +71,22 @@ class DatabaseOperation:
             dir_id = self.get_or_create_directory(directory_path)
             file_entry = (
                 self.db.query(FileMetadata)
-                .filter_by(directory_id=dir_id, file_path=file_path)
+                .filter_by(directory_id=dir_id, item_path=item_path)
                 .first()
             )
 
             if file_entry:
-                file_entry.hash = file_hash
+                file_entry.hash = item_hash
                 file_entry.last_modified = last_modified
                 file_entry.status = status  # type: ignore[assignment]
             else:
                 new_entry = FileMetadata(
                     directory_id=dir_id,
-                    file_path=file_path,
-                    hash=file_hash,
+                    item_path=item_path,
+                    item_type=item_type,
+                    hash=item_hash,
                     last_modified=last_modified,
-                    status=status,  # type: ignore[arg-type]
+                    status=status  # type: ignore[arg-type]
                 )
                 self.db.add(new_entry)
 
@@ -98,7 +100,7 @@ class DatabaseOperation:
         """Fetch baseline (current) files for a directory."""
         try:
             result = (
-                self.db.query(FileMetadata.file_path, FileMetadata.hash, FileMetadata.last_modified)
+                self.db.query(FileMetadata.item_path, FileMetadata.hash, FileMetadata.last_modified)
                 .join(Directory)
                 .filter(Directory.path == directory_path, FileMetadata.status == "current")
                 .all()
@@ -123,7 +125,7 @@ class DatabaseOperation:
                     FileMetadata.detected_at,
                 )
                 .join(Directory)
-                .filter(FileMetadata.file_path == file_path)
+                .filter(FileMetadata.item_path == file_path)
                 .order_by(FileMetadata.detected_at.desc())
                 .limit(limit)
                 .all()
@@ -137,7 +139,7 @@ class DatabaseOperation:
     ):
         """Update hash and status for a file."""
         try:
-            file_entry = self.db.query(FileMetadata).filter_by(file_path=file_path).first()
+            file_entry = self.db.query(FileMetadata).filter_by(item_path=file_path).first()
             if file_entry:
                 file_entry.hash = new_hash
                 file_entry.last_modified = last_modified
@@ -150,7 +152,7 @@ class DatabaseOperation:
     def delete_file_record(self, file_path: str):
         """Mark file as deleted."""
         try:
-            file_entry = self.db.query(FileMetadata).filter_by(file_path=file_path).first()
+            file_entry = self.db.query(FileMetadata).filter_by(item_path=file_path).first()
             if file_entry:
                 file_entry.status = "deleted"  # type: ignore[assignment]
                 file_entry.detected_at = datetime.utcnow()
@@ -164,7 +166,7 @@ class DatabaseOperation:
         try:
             from sqlalchemy import text
             query = text(f"""
-                SELECT d.path, f.file_path, f.status, f.detected_at
+                SELECT d.path, f.item_path, f.status, f.detected_at
                 FROM file_metadata f
                 JOIN directories d ON f.directory_id = d.id
                 WHERE f.detected_at >= NOW() - INTERVAL {hours} HOUR

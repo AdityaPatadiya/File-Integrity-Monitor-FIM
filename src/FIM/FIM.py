@@ -156,8 +156,9 @@ class monitor_changes:
                 for path, data in baseline.items():
                     self.database_instance.record_file_event(
                         directory_path=directory,
-                        file_path=path,
-                        file_hash=data['hash'],
+                        item_path=path,
+                        item_hash=data['hash'],
+                        item_type=data['type'],
                         last_modified=data['last_modified'],
                         status='current'
                     )
@@ -200,8 +201,9 @@ class monitor_changes:
                 directory = os.path.dirname(path)
                 self.database_instance.record_file_event(
                     directory_path=directory,
-                    file_path=path,
-                    file_hash=data['hash'],
+                    item_path=path,
+                    item_hash=data['hash'],
+                    item_type=data['type'],
                     last_modified=data['last_modified'],
                     status=change_type
                 )

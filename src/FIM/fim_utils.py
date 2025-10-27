@@ -40,6 +40,9 @@ class FIM_monitor:
                     if self.logger:
                         self.logger.error(f"Error calculating folder hash for {folder_path}: {e}")
                     folder_hash = hashlib.sha256(folder_path.encode()).hexdigest()
+                
+                if not folder_hash:
+                    folder_hash = hashlib.sha256(folder_path.encode()).hexdigest()
 
                 try:
                     last_modified = self.get_formatted_time(os.path.getmtime(folder_path))
@@ -56,8 +59,9 @@ class FIM_monitor:
                 try:
                     self.database_instance.record_file_event(
                         directory_path=directory,
-                        file_path=folder_path,
-                        file_hash=folder_hash,
+                        item_path=folder_path,
+                        item_hash=folder_hash,
+                        item_type='folder',
                         last_modified=last_modified,
                         status='current'
                     )
@@ -99,8 +103,9 @@ class FIM_monitor:
                 try:
                     self.database_instance.record_file_event(
                         directory_path=directory,
-                        file_path=file_path,
-                        file_hash=file_hash,
+                        item_path=file_path,
+                        item_hash=file_hash,
+                        item_type='file',
                         last_modified=last_modified,
                         status='current'
                     )

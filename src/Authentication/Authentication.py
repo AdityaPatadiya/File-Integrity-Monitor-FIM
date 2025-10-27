@@ -1,157 +1,96 @@
+"""
+authentication.py
+-----------------
+Handles user registration and authentication using SQLAlchemy ORM
+and the users table from the auth database.
+"""
+
 import getpass
 import hashlib
-import mysql.connector
 import os
+from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
-
-from config.logging_config import configure_logger
+from src.api.database.connection import AuthSessionLocal
+from src.api.models.user_model import User
 
 load_dotenv()
 
 
 class Authentication:
     def __init__(self):
-        self.conn = None
-        self.cursor = None
-        self.logger_config = configure_logger()
-        self.db_logger = self.logger_config._setup_logger("Authentication")
-        self.create_database_if_not_exists()
-        self.connect_to_db()
-        self.create_user_table()
+        self.db = AuthSessionLocal()
 
-    def create_database_if_not_exists(self):
-        try:
-            temp_config = {
-                "host": os.getenv('DB_HOST'),
-                "user": os.getenv('DB_USER'),
-                "password": os.getenv('DB_PASSWORD'),
-            }
-
-            cnx = mysql.connector.connect(**temp_config)
-            cursor = cnx.cursor()
-            db_name = os.getenv('AUTH_DB_NAME')
-
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")
-            self.db_logger.info(f"Database '{db_name}' verified or created.")
-            cursor.close()
-            cnx.close()
-        except mysql.connector.Error as err:
-            self.db_logger.error(f"❌ Error checking/creating database '{os.getenv('DB_NAME')}': {err}")
-            raise
-
-    def connect_to_db(self):
-        """Connect to MySQL database using environment variables"""
-        try:
-            self.conn = mysql.connector.connect(
-                host=os.getenv('DB_HOST', 'localhost'),
-                user=os.getenv('DB_USER'),
-                password=os.getenv('DB_PASSWORD'),
-                database=os.getenv('AUTH_DB_NAME', 'fim_auth_db')
-            )
-            self.cursor = self.conn.cursor(dictionary=True)
-        except mysql.connector.Error as err:
-            print(f"Database connection failed: {err}")
-            exit(1)
-
-    def create_user_table(self):
-        """Create users table if not exists"""
-        if self.cursor is None or self.conn is None:
-            print("Database connection or cursor is not initialized. Table creation aborted.")
-            exit(1)
-        try:
-            self.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS users (
-                    username VARCHAR(255) PRIMARY KEY,
-                    email VARCHAR(255) UNIQUE,
-                    password CHAR(64) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-            ''')
-            self.conn.commit()
-        except mysql.connector.Error as err:
-            print(f"Table creation failed: {err}")
-            exit(1)
-
-    def hash_password(self, password):
-        """SHA-256 hash with salt"""
+    def hash_password(self, password: str) -> str:
+        """Generate a SHA-256 hash for the password using a pepper."""
         salt = os.getenv('PEPPER', 'default-secret-pepper')
         return hashlib.sha256((password + salt).encode()).hexdigest()
 
     def register_new_user(self):
-        """Register new user with validation"""
-        if self.cursor is None or self.conn is None:
-            print("Database connection or cursor is not initialized. Table creation aborted.")
-            exit(1)
+        """Register a new user using SQLAlchemy ORM."""
         username = input("Enter new username: ").strip()
-        if not username:
-            print("Username cannot be empty")
-            return
-
-        email = input("Enter the email: ").strip()
-        if not email:
-            print("Email cannot be empty.")
-            return
-
+        email = input("Enter email: ").strip()
         password = getpass.getpass("Enter new password: ")
+
+        if not username or not email:
+            print("Username and email cannot be empty.")
+            return
+
         if len(password) < 8:
-            print("Password must be at least 8 characters")
-            exit(0)
+            print("Password must be at least 8 characters.")
+            return
 
         hashed_password = self.hash_password(password)
 
+        new_user = User(
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
+            is_admin=True
+        )
+
         try:
-            self.cursor.execute(
-                'INSERT INTO users (username, email, password) VALUES (%s, %s, %s)',
-                (username, email, hashed_password)
-            )
-            self.conn.commit()
-            print("User registered successfully")
+            self.db.add(new_user)
+            self.db.commit()
+            print("✅ User registered successfully.")
             return username
-        except mysql.connector.IntegrityError:
-            print("Username already exists. Try to Log In!! or use different username!!\n")
-            self.login_existing_user()
-        except mysql.connector.Error as err:
-            print(f"Registration failed: {err}")
-            return
+        except IntegrityError:
+            self.db.rollback()
+            print("⚠️ Username or email already exists. Try logging in instead.")
+            return self.login_existing_user()
+        except Exception as e:
+            self.db.rollback()
+            print(f"❌ Registration failed: {e}")
 
     def login_existing_user(self):
-        """Authenticate existing user"""
-        if self.cursor is None:
-            print("Database connection or cursor is not initialized. Table creation aborted.")
-            exit(1)
+        """Authenticate an existing user using SQLAlchemy ORM."""
         email = input("Enter email: ").strip()
         password = getpass.getpass("Enter password: ")
         hashed_password = self.hash_password(password)
 
-        try:
-            self.cursor.execute(
-                'SELECT email FROM users WHERE email = %s AND password = %s',
-                (email, hashed_password)
-            )
-            user = self.cursor.fetchone()
-            if user:
-                print("Authentication successful")
-            else:
-                print("Access denied")
-                exit(1)
+        user = (
+            self.db.query(User)
+            .filter(User.email == email, User.hashed_password == hashed_password)
+            .first()
+        )
+
+        if user:
+            print("✅ Authentication successful.")
             return email
-        except mysql.connector.Error as err:
-            print(f"Login error: {err}")
-            exit(1)
+        else:
+            print("❌ Access denied. Invalid credentials.")
+            return None
 
     def authorised_credentials(self):
-        """Main authentication flow"""
+        """Prompt user to register or log in."""
         while True:
             choice = input("Are you a new user? (yes/no): ").strip().lower()
             if choice == 'yes':
                 return self.register_new_user()
             elif choice == 'no':
                 return self.login_existing_user()
-            print(f"Invalid choice. Please enter 'yes' or 'no'.\nYou've entred: {choice}")
+            else:
+                print(f"Invalid choice. Please enter 'yes' or 'no'. You entered: {choice}")
 
     def close_connection(self):
-        """Clean up database resources"""
-        if self.cursor:
-            self.cursor.close()
-        if self.conn:
-            self.conn.close()
+        """Close the SQLAlchemy session."""
+        self.db.close()
