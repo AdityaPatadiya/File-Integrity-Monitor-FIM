@@ -76,15 +76,15 @@ class DatabaseOperation:
             )
 
             if file_entry:
-                file_entry.hash = item_hash
-                file_entry.last_modified = last_modified
+                file_entry.hash = item_hash  # type: ignore[assignment]
+                file_entry.last_modified = last_modified  # type:ignore[assignment]
                 file_entry.status = status  # type: ignore[assignment]
             else:
                 new_entry = FileMetadata(
                     directory_id=dir_id,
                     item_path=item_path,
                     item_type=item_type,
-                    hash=item_hash,
+                    hash=item_hash,  # type: ignore[arg-type]
                     last_modified=last_modified,
                     status=status  # type: ignore[arg-type]
                 )
@@ -130,7 +130,8 @@ class DatabaseOperation:
                 .limit(limit)
                 .all()
             )
-            return result
+            # convert Sequence[Row[Any]] to List[Tuple] to match the annotated return type
+            return [tuple(row) for row in result]
         except SQLAlchemyError as e:
             raise RuntimeError(f"Error fetching file history: {e}")
 
@@ -141,8 +142,8 @@ class DatabaseOperation:
         try:
             file_entry = self.db.query(FileMetadata).filter_by(item_path=file_path).first()
             if file_entry:
-                file_entry.hash = new_hash
-                file_entry.last_modified = last_modified
+                file_entry.hash = new_hash  # type:ignore[assignment]
+                file_entry.last_modified = last_modified  # type:ignore[assignment]
                 file_entry.status = status  # type: ignore[assignment]
                 self._commit()
         except SQLAlchemyError as e:
@@ -155,7 +156,7 @@ class DatabaseOperation:
             file_entry = self.db.query(FileMetadata).filter_by(item_path=file_path).first()
             if file_entry:
                 file_entry.status = "deleted"  # type: ignore[assignment]
-                file_entry.detected_at = datetime.utcnow()
+                file_entry.detected_at = datetime.utcnow()  # type:ignore[assignment]
                 self._commit()
         except SQLAlchemyError as e:
             self.db.rollback()
