@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 def register_user(db: Session, username: str, email: str, password: str):
     logger.info(f"🔍 Register attempt - Username: {username}, Email: {email}")
-    
+
     existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
         logger.warning(f"❌ Email already registered: {email}")
         raise HTTPException(status_code=400, detail="Email already registered.")
-    
+
     user_count = db.query(User).count()
     is_admin = user_count == 0  # First user becomes admin
 
@@ -55,10 +55,8 @@ def register_user(db: Session, username: str, email: str, password: str):
 
 
 def login_user(db: Session, email: str, password: str):
-    logger.info(f"🔍 Login attempt - Email: {email}")
-    
     user = db.query(User).filter(User.email == email).first()
-    
+
     if not user:
         logger.warning(f"User not found: {email}")
         raise HTTPException(
