@@ -26,11 +26,10 @@ from src.api.schemas.fim_schema import (
 
 router = APIRouter(prefix="/api/fim", tags=["File Integrity Monitoring"])
 
-# Global FIM monitor instance
 fim_monitor = monitor_changes()
 
 # Helper function to verify admin access
-def verify_admin_access(token_data: dict, db: Session) -> User:
+def verify_admin_access(token_data: dict = Depends(verify_token), db: Session = Depends(get_auth_db)) -> User:
     """Verify that the current user is an admin"""
     admin = db.query(User).filter(User.email == token_data["sub"]).first()
     if not admin or not getattr(admin, 'is_admin', False):
@@ -41,7 +40,7 @@ def verify_admin_access(token_data: dict, db: Session) -> User:
 def start_fim_monitoring(
     request: FIMStartRequest,
     background_tasks: BackgroundTasks,
-    token_data: dict = Depends(verify_token),
+    admin_user: User = Depends(verify_admin_access),
     auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
@@ -57,14 +56,7 @@ def start_fim_monitoring(
                     detail=f"Directory does not exist: {directory}"
                 )
 
-        # Get current user
-        current_user = auth_db.query(User).filter(User.email == token_data["sub"]).first()
-        if not current_user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        # Store directories in database
         for directory in request.directories:
-            # Check if directory already exists in database
             existing_dir = fim_db.query(Directory).filter(Directory.path == directory).first()
             if not existing_dir:
                 new_dir = Directory(path=directory)
@@ -72,10 +64,9 @@ def start_fim_monitoring(
         
         fim_db.commit()
 
-        # Start monitoring in background
         background_tasks.add_task(
             fim_monitor.monitor_changes,
-            current_user.username,
+            admin_user.username,
             request.directories,
             request.excluded_files or []
         )
@@ -93,7 +84,7 @@ def start_fim_monitoring(
 @router.post("/stop", summary="Stop monitoring directories")
 def stop_fim_monitoring(
     request: FIMStopRequest,
-    token_data: dict = Depends(verify_token),
+    admin_user: User = Depends(verify_admin_access),
     auth_db: Session = Depends(get_auth_db)
 ):
     """
@@ -128,7 +119,6 @@ def get_fim_status(
             fim_monitor.observer.is_alive()
         )
 
-        # Get watched directories from database
         dir_records = fim_db.query(Directory).all()
         watched_directories = [str(d.path) for d in dir_records]
 
@@ -152,7 +142,6 @@ def get_fim_changes(
     Fetch latest detected file changes from FIM database.
     """
     try:
-        # Query changes from database
         query = fim_db.query(FileMetadata).filter(FileMetadata.status != 'current')
         
         if directory:
@@ -224,7 +213,6 @@ def get_fim_logs(
             else:
                 raise HTTPException(status_code=404, detail=f"No logs found for directory: {directory}")
         else:
-            # Get all FIM logs
             for log_path in logs_dir.glob("FIM_*.log"):
                 directory_name = log_path.stem.replace("FIM_", "")
                 
@@ -249,7 +237,7 @@ def get_fim_logs(
 @router.post("/restore", summary="Restore files from backup")
 def restore_files(
     request: FIMRestoreRequest,
-    token_data: dict = Depends(verify_token),
+    admin_user: User = Depends(verify_admin_access),
     auth_db: Session = Depends(get_auth_db)
 ):
     """
@@ -258,15 +246,10 @@ def restore_files(
     try:
         backup_instance = Backup()
         
-        # Get current user for backup operations
-        current_user = auth_db.query(User).filter(User.email == token_data["sub"]).first()
-        if not current_user:
-            raise HTTPException(status_code=404, detail="User not found")
-
         # Restore the specified path
         result = backup_instance.restore_backup(
             request.path_to_restore,
-            current_user.username
+            admin_user.username  # ✅ Use admin_user
         )
 
         if result:
@@ -286,7 +269,7 @@ def restore_files(
 @router.post("/add-path", summary="Add directory to monitor")
 def add_monitoring_path(
     request: FIMAddPathRequest,
-    token_data: dict = Depends(verify_token),
+    admin_user: User = Depends(verify_admin_access),
     auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
@@ -294,7 +277,6 @@ def add_monitoring_path(
     Add a new directory to the monitoring list.
     """
     try:
-        # Verify directory exists
         if not os.path.exists(request.directory):
             raise HTTPException(
                 status_code=400, 
@@ -309,7 +291,6 @@ def add_monitoring_path(
                 detail="Directory is already being monitored"
             )
 
-        # Add directory to database
         new_dir = Directory(path=request.directory)
         fim_db.add(new_dir)
         fim_db.commit()
@@ -334,19 +315,14 @@ def add_monitoring_path(
 @router.post("/reset-baseline", summary="Reset baseline for directories")
 def reset_baseline(
     request: FIMStartRequest,
-    token_data: dict = Depends(verify_token),
+    admin_user: User = Depends(verify_admin_access),
     auth_db: Session = Depends(get_auth_db)
 ):
     """
     Reset baseline for specified directories.
     """
     try:
-        # Get current user
-        current_user = auth_db.query(User).filter(User.email == token_data["sub"]).first()
-        if not current_user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        fim_monitor.reset_baseline(cast(str, current_user.username), request.directories)
+        fim_monitor.reset_baseline(cast(str, admin_user.username), request.directories)
 
         return {
             "message": "Baseline reset successfully",
@@ -367,7 +343,6 @@ def get_baseline(
     Get current baseline data for directories.
     """
     try:
-        # Query baseline (current) records from database
         query = fim_db.query(FileMetadata).filter(FileMetadata.status == 'current')
         
         if directory:
