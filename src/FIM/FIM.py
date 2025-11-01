@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEventHandler
 from src.utils.backup import Backup
 from src.utils.database import database_operation
 from src.FIM.fim_utils import FIM_monitor
-from config.logging_config import configure_logger
+from src.config.logging_config import configure_logger
 
 
 class FIMEventHandler(FileSystemEventHandler):
