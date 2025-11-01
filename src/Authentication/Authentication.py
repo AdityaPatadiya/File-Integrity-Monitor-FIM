@@ -78,7 +78,7 @@ class Authentication:
             return email
         else:
             print("❌ Access denied. Invalid credentials.")
-            return None
+            exit(1)
 
     def authorised_credentials(self):
         """Prompt user to register or log in."""

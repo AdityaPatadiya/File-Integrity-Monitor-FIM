@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from src.utils.database import DatabaseOperation
-from config.logging_config import configure_logger
+from src.config.logging_config import configure_logger
 
 
 class FIM_monitor:

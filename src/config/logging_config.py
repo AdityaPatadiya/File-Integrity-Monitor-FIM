@@ -21,7 +21,7 @@ class configure_logger:
         """Initialize logger registry and ensure logs directory exists"""
         self.loggers = {}
         self.logs_dir = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), "..", "logs"))
+            os.path.dirname(__file__), "..", "..", "logs"))
         Path(self.logs_dir).mkdir(parents=True, exist_ok=True)
 
     def _sanitize_basename(self, directory):
