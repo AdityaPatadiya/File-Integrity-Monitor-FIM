@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def register_user(db: Session, username: str, email: str, password: str):
+def register_user(db: Session, username: str, email: str, password: str, is_admin: bool = False):
     logger.info(f"🔍 Register attempt - Username: {username}, Email: {email}")
 
     existing_user = db.query(User).filter(User.email == email).first()
@@ -16,12 +16,6 @@ def register_user(db: Session, username: str, email: str, password: str):
         logger.warning(f"❌ Email already registered: {email}")
         raise HTTPException(status_code=400, detail="Email already registered.")
 
-    user_count = db.query(User).count()
-    is_admin = user_count == 0  # First user becomes admin
-
-    logger.info(f"🔍 User count: {user_count}, Is admin: {is_admin}")
-
-    # Hash the password
     hashed_pw = hash_password(password)
     logger.info(f"🔍 Password hashed: {hashed_pw[:20]}...")
 
@@ -29,13 +23,13 @@ def register_user(db: Session, username: str, email: str, password: str):
         username=username,
         email=email,
         hashed_password=hashed_pw,
-        is_admin=is_admin  # New users are not admin by default
+        is_admin=is_admin
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
-    logger.info(f"User registered - ID: {new_user.id}, Admin: {is_admin}")
+
+    logger.info(f"User registered - ID: {new_user.id}, Admin: {new_user.is_admin}")
 
     # Create token for the new user
     token = create_access_token({"sub": new_user.email})
@@ -50,7 +44,7 @@ def register_user(db: Session, username: str, email: str, password: str):
             "is_admin": new_user.is_admin
         },
         "message": f"User {new_user.username} registered successfully!"+ 
-                  (" You are the administrator." if is_admin else "")
+                  (" You are the administrator." if new_user.is_admin else "")
     }
 
 

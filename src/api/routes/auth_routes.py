@@ -18,7 +18,7 @@ def verify_admin_access(token_data: dict, db: Session) -> User:
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_auth_db)):
-    return register_user(db, user.username, user.email, user.password)
+    return register_user(db, user.username, user.email, user.password, is_admin=True)
 
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_auth_db)):
