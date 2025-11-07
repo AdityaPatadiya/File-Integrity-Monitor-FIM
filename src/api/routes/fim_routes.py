@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any, cast
+from typing import List, Optional, cast
 import os
-import glob
 from pathlib import Path
-from datetime import datetime
 
 from src.api.database.connection import get_auth_db, get_fim_db
 from src.api.utils.jwt_utils import verify_token
@@ -24,9 +22,18 @@ from src.api.schemas.fim_schema import (
     FIMLogsResponse
 )
 
-router = APIRouter(prefix="/api/fim", tags=["File Integrity Monitoring"])
 
-fim_monitor = monitor_changes()
+def handle_fim_errors(func):
+    """Decorator to handle common FIM route errors"""
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"FIM operation failed: {str(e)}")
+    return wrapper
+
 
 # Helper function to verify admin access
 def verify_admin_access(token_data: dict = Depends(verify_token), db: Session = Depends(get_auth_db)) -> User:
@@ -36,12 +43,17 @@ def verify_admin_access(token_data: dict = Depends(verify_token), db: Session = 
         raise HTTPException(status_code=403, detail="Admin access required")
     return admin
 
+
+router = APIRouter(prefix="/api/fim", tags=["File Integrity Monitoring"])
+
+fim_monitor = monitor_changes()
+
+
 @router.post("/start", summary="Start monitoring directories")
 def start_fim_monitoring(
     request: FIMStartRequest,
     background_tasks: BackgroundTasks,
     admin_user: User = Depends(verify_admin_access),
-    auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
     """
@@ -68,7 +80,8 @@ def start_fim_monitoring(
             fim_monitor.monitor_changes,
             admin_user.username,
             request.directories,
-            request.excluded_files or []
+            request.excluded_files or [],
+            fim_db
         )
 
         return {
@@ -84,8 +97,6 @@ def start_fim_monitoring(
 @router.post("/stop", summary="Stop monitoring directories")
 def stop_fim_monitoring(
     request: FIMStopRequest,
-    admin_user: User = Depends(verify_admin_access),
-    auth_db: Session = Depends(get_auth_db)
 ):
     """
     Stop monitoring specified directories.
@@ -106,8 +117,6 @@ def stop_fim_monitoring(
 
 @router.get("/status", response_model=FIMStatusResponse, summary="Get monitoring status")
 def get_fim_status(
-    token_data: dict = Depends(verify_token),
-    auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
     """
@@ -134,46 +143,37 @@ def get_fim_status(
 @router.get("/changes", response_model=FIMChangesResponse, summary="Get detected changes")
 def get_fim_changes(
     directory: Optional[str] = None,
-    token_data: dict = Depends(verify_token),
-    auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
     """
     Fetch latest detected file changes from FIM database.
     """
     try:
-        query = fim_db.query(FileMetadata).filter(FileMetadata.status != 'current')
-        
+        query = (
+            fim_db.query(FileMetadata, Directory.path)
+            .join(Directory, FileMetadata.directory_id == Directory.id)
+            .filter(FileMetadata.status != 'current')
+        )
+
         if directory:
-            dir_record = fim_db.query(Directory).filter(Directory.path == directory).first()
-            if dir_record:
-                query = query.filter(FileMetadata.directory_id == dir_record.id)
-        
+            query = query.filter(Directory.path == directory)
+
         changes_data = query.order_by(FileMetadata.detected_at.desc()).all()
         
         # Organize changes by type
         changes = {"added": {}, "modified": {}, "deleted": {}}
         
-        for change in changes_data:
-            dir_path = fim_db.query(Directory.path).filter(Directory.id == change.directory_id).scalar()
-            full_path = change.item_path
-            
+        for item, dir_path in changes_data:
             change_info = {
-                "hash": change.hash,
-                "last_modified": change.last_modified.strftime("%Y-%m-%d %H:%M:%S") if change.last_modified is not None else None,
-                "type": change.item_type,
-                "detected_at": change.detected_at.strftime("%Y-%m-%d %H:%M:%S") if change.detected_at is not None else None
+                "hash": item.hash,
+                "last_modified": item.last_modified.strftime("%Y-%m-%d %H:%M:%S") if item.last_modified else None,
+                "type": item.item_type,
+                "detected_at": item.detected_at.strftime("%Y-%m-%d %H:%M:%S") if item.detected_at else None
             }
-            
-            if cast(str, change.status) == 'added':
-                changes["added"][full_path] = change_info
-            elif cast(str, change.status) == 'modified':
-                changes["modified"][full_path] = change_info
-            elif cast(str, change.status) == 'deleted':
-                changes["deleted"][full_path] = change_info
+            changes[item.status][item.item_path] = change_info
 
-        total_changes = len(changes_data)
-        
+        total_changes = sum(len(changes[status]) for status in changes)
+
         return FIMChangesResponse(
             added=changes["added"],
             modified=changes["modified"],
@@ -187,8 +187,6 @@ def get_fim_changes(
 @router.get("/logs", response_model=List[FIMLogsResponse], summary="Retrieve FIM logs")
 def get_fim_logs(
     directory: Optional[str] = None,
-    token_data: dict = Depends(verify_token),
-    auth_db: Session = Depends(get_auth_db)
 ):
     """
     Retrieve logs from FIM log files.
@@ -238,7 +236,6 @@ def get_fim_logs(
 def restore_files(
     request: FIMRestoreRequest,
     admin_user: User = Depends(verify_admin_access),
-    auth_db: Session = Depends(get_auth_db)
 ):
     """
     Restore files or directories from backup.
@@ -269,8 +266,6 @@ def restore_files(
 @router.post("/add-path", summary="Add directory to monitor")
 def add_monitoring_path(
     request: FIMAddPathRequest,
-    admin_user: User = Depends(verify_admin_access),
-    auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
     """
@@ -316,7 +311,6 @@ def add_monitoring_path(
 def reset_baseline(
     request: FIMStartRequest,
     admin_user: User = Depends(verify_admin_access),
-    auth_db: Session = Depends(get_auth_db)
 ):
     """
     Reset baseline for specified directories.
@@ -335,35 +329,35 @@ def reset_baseline(
 @router.get("/baseline", summary="Get current baseline")
 def get_baseline(
     directory: Optional[str] = None,
-    token_data: dict = Depends(verify_token),
-    auth_db: Session = Depends(get_auth_db),
     fim_db: Session = Depends(get_fim_db)
 ):
     """
     Get current baseline data for directories.
     """
     try:
-        query = fim_db.query(FileMetadata).filter(FileMetadata.status == 'current')
-        
+        query = (
+            fim_db.query(FileMetadata, Directory.path)
+            .join(Directory, FileMetadata.directory_id == Directory.id)
+            .filter(FileMetadata.status == 'current')
+        )
+
         if directory:
-            dir_record = fim_db.query(Directory).filter(Directory.path == directory).first()
-            if dir_record:
-                query = query.filter(FileMetadata.directory_id == dir_record.id)
-            else:
+            query = query.filter(Directory.path == directory)
+            if not query.first():
                 raise HTTPException(status_code=404, detail=f"Directory not found: {directory}")
-        
+
         baseline_data = query.all()
-        
+
         baseline = {}
-        for item in baseline_data:
-            dir_path = fim_db.query(Directory.path).filter(Directory.id == item.directory_id).scalar()
+        for item, dir_path in baseline_data:
             if dir_path not in baseline:
                 baseline[dir_path] = {}
-            
+
             baseline[dir_path][item.item_path] = {
                 "type": item.item_type,
                 "hash": item.hash,
-                "last_modified": item.last_modified.strftime("%Y-%m-%d %H:%M:%S") if item.last_modified is not None else None
+                "last_modified": item.last_modified.strftime("%Y-%m-%d %H:%M:%S") if item.last_modified else None,
+                "detected_at": item.detected_at.strftime("%Y-%m-%d %H:%M:%S") if item.detected_at else None
             }
 
         return {

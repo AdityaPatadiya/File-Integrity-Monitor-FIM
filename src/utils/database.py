@@ -10,8 +10,8 @@ from src.api.models.fim_models import Directory, FileMetadata
 class DatabaseOperation:
     """Handles all database interactions using SQLAlchemy ORM."""
 
-    def __init__(self):
-        self.db: Session = FimSessionLocal()
+    def __init__(self, db:Session):
+        self.db:Session = db
 
     def _commit(self):
         """Commit the transaction safely."""

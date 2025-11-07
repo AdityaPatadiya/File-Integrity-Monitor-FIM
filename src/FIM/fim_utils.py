@@ -3,14 +3,14 @@ import time
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, Optional
+from sqlalchemy.orm import Session
 
 from src.utils.database import DatabaseOperation
 from src.config.logging_config import configure_logger
 
 
 class FIM_monitor:
-    def __init__(self):
-        self.database_instance = DatabaseOperation()
+    def __init__(self, db_session: Optional[Session] = None):
         self.current_entries: Dict[str, Dict[str, Any]] = {}
         self.configure_logger = configure_logger()
         self.logger = None
@@ -19,13 +19,15 @@ class FIM_monitor:
         """Convert a timestamp to a readable format."""
         return time.strftime(r"%Y-%m-%d %H:%M:%S", time.localtime(timestamp))
 
-    def tracking_directory(self, auth_user, directory: str) -> Dict[str, Dict[str, Any]]:
+    def tracking_directory(self, auth_user, directory: str, db_session: Optional[Session] = None) -> Dict[str, Dict[str, Any]]:
         """
         Track the monitored directory and store baseline in the database.
         Returns a dictionary of file/folder metadata.
         """
         self.current_entries = {}
         self.logger = self.configure_logger._get_or_create_logger(auth_user, directory)
+
+        database_instance = DatabaseOperation(db_session) if db_session else None
 
         for root, dirs, files in os.walk(directory):
             # ---------------- Handle Folders ----------------
@@ -55,21 +57,21 @@ class FIM_monitor:
                     "last_modified": last_modified,
                 }
 
-                # Store in database
-                try:
-                    self.database_instance.record_file_event(
-                        directory_path=directory,
-                        item_path=folder_path,
-                        item_hash=folder_hash,
-                        item_type='folder',
-                        last_modified=last_modified,
-                        status='current'
-                    )
-                except Exception as e:
-                    if self.logger:
-                        self.logger.error(f"DB insert failed for folder {folder_path}: {e}")
-                    else:
-                        print(f"DB insert failed for folder {folder_path}: {e}")
+                if database_instance:
+                    try:
+                        database_instance.record_file_event(
+                            directory_path=directory,
+                            item_path=folder_path,
+                            item_hash=folder_hash,
+                            item_type='folder',
+                            last_modified=last_modified,
+                            status='current'
+                        )
+                    except Exception as e:
+                        if self.logger:
+                            self.logger.error(f"DB insert failed for folder {folder_path}: {e}")
+                        else:
+                            print(f"DB insert failed for folder {folder_path}: {e}")
 
             # ---------------- Handle Files ----------------
             for file in files:
@@ -99,20 +101,21 @@ class FIM_monitor:
                     "last_modified": last_modified,
                 }
 
-                # Store in database
-                try:
-                    self.database_instance.record_file_event(
-                        directory_path=directory,
-                        item_path=file_path,
-                        item_hash=file_hash,
-                        item_type='file',
-                        last_modified=last_modified,
-                        status='current'
-                    )
-                except Exception as e:
-                    if self.logger:
-                        self.logger.error(f"DB insert failed for file {file_path}: {e}")
-                    else:
+                if database_instance:
+                    try:
+                        database_instance.record_file_event(
+                            directory_path=directory,
+                            item_path=file_path,
+                            item_hash=file_hash,
+                            item_type='file',
+                            last_modified=last_modified,
+                            status='current'
+                        )
+                    except Exception as e:
+                        if self.logger:
+                            self.logger.error(f"DB insert failed for file {file_path}: {e}")
+                        else:
+                            print(f"DB insert failed for file {file_path}: {e}")
                         print(f"DB insert failed for file {file_path}: {e}")
 
         return self.current_entries
